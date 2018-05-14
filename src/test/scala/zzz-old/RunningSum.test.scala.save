@@ -1,0 +1,18 @@
+import Scalar._
+import units._
+
+object RunningSumTest {
+
+    def main(args: Array[String]) {
+
+        var minsep = new RunningMin(4*m)
+
+        minsep(5*m)
+        minsep(2*m)
+        minsep(9*m)
+        minsep(-7*m)
+        minsep(3*m, 2*m, 9*m)
+
+        println(minsep.min)
+        }
+    }

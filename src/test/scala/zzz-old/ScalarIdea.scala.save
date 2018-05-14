@@ -1,0 +1,168 @@
+import Math._
+import Real._
+
+case class Scalr(val num: Real) {
+
+    override def toString: String = num.toString
+
+    }
+
+class NoDim(num: Real) extends Scalr(num) {
+
+    def * (that: Time) = new Time(num * that.num)
+    def * (that: Length) = new Length(num * that.num)
+    def * (that: Speed) = new Speed(num * that.num)
+    def * (that: Accel) = new Accel(num * that.num)
+    def * (that: Mass) = new Mass(num * that.num)
+    def * (that: Force) = new Force(num * that.num)
+    def * (that: Area) = new Area(num * that.num)
+    def * (that: Volume) = new Volume(num * that.num)
+    def * (that: Pressure) = new Pressure(num * that.num)
+    def * (that: Energy) = new Energy(num * that.num)
+
+    }
+
+object NoDim {
+
+    implicit def RealToNoDim(num: Real) = new NoDim(num)
+    implicit def IntToNodim(num: Int) = new NoDim(num)
+
+    }
+
+class Time(num: Real=1) extends Scalr(num) {
+
+    //override def toString: String = num.toString + " sec"
+
+    def / (that: Real) = new Time(num / that)
+    def / (that: Time) = new NoDim(num / that.num)
+
+    def + (that: Time): Time = new Time(num + that.num)
+
+    def * (that: Real): Time = new Time(that * num)
+    def * (that: Speed): Length = new Length(that.num * num)
+
+    }
+
+class Length(num: Real=1) extends Scalr(num) {
+
+    //def * (y: NoDim): Length = new Length(y.num * num)
+    def * (that: Real): Length = new Length(that * num)
+
+    def / (that: Real) = new Length(num / that)
+    def / (that: Length) = new NoDim(num / that.num)
+    def / (that: Time) = new Speed(num / that.num)
+
+    }
+
+object Length {
+
+    def apply() = new Length(1)
+
+    }
+
+class Speed(num: Real) extends Scalr(num) {
+
+    def / (that: Speed) = new NoDim(num / that.num)
+
+    def * (that: Time): Length = new Length(that.num * num)
+
+    }
+
+class Accel(num: Real) extends Scalr(num) {
+
+    def / (that: Accel) = new NoDim(num / that.num)
+    }
+
+class Mass(num: Real) extends Scalr(num) {
+
+    def / (that: Mass) = new NoDim(num / that.num)
+    }
+
+class Force(num: Real) extends Scalr(num) {
+
+    def / (that: Force) = new NoDim(num / that.num)
+    }
+
+class Area(num: Real) extends Scalr(num) {
+
+    def / (that: Area) = new NoDim(num / that.num)
+    }
+
+class Volume(num: Real) extends Scalr(num) {
+
+    def / (that: Volume) = new NoDim(num / that.num)
+    }
+
+class Pressure(num: Real) extends Scalr(num) {
+
+    def / (that: Pressure) = new NoDim(num / that.num)
+    }
+
+class Energy(num: Real) extends Scalr(num) {
+
+    def / (that: Energy) = new NoDim(num / that.num)
+    }
+
+
+object Units {
+
+    def rss(num1: Real, num2: Real) =
+        new Length(sqrt(num1 * num1 + num2 * num2))
+
+    def rss(num1: Length, num2: Length) =
+        new Length(sqrt(num1.num * num1.num + num2.num * num2.num))
+
+    }
+
+import NoDim._
+
+object units {
+
+    val s = new Time
+    val m = Length()
+
+    val ms = s * 0.001
+    val Min = 60 * s
+    val hr = 3600 * s
+
+    val km = 1000 * m
+    val mm = 0.001 * m
+
+    val nmi = 1852 * m
+    val kn = nmi/hr
+    }
+
+
+import units._
+import Units._
+
+object ScalarIdeaTest {
+
+    def main(args: Array[String]) {
+
+        println
+
+        println(s)
+
+        val t1 = 3.2 * s
+        val t2 = 1.2 * s
+        val t3 = t1 + t2
+
+        println(t3)
+
+        val d1 = 3 * m
+        val d2 = 4 * m
+
+        val d3 = rss(d1, d2)
+
+        println(d3)
+
+        val t4 = 2 * hr
+        val s1 = 3 * kn
+        val d4 = s1 * t4
+
+        println(d4/nmi)
+
+        println
+        }
+    }

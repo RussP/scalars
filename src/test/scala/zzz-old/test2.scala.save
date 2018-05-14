@@ -1,0 +1,33 @@
+
+abstract class Base {
+
+    //def doit(i: Int) { println("\nHi, I'm Base " + i) }
+    }
+
+class Derived1 extends Base {
+
+    def doit(i: Int) { println("\nHi, I'm Derived1 " + i) }
+    }
+
+class Derived2 extends Base {
+
+    def doit(i: Int) { println("\nHi, I'm Derived2 " + i) }
+    }
+
+
+object ClassTest {
+
+    def main(args: Array[String]) {
+
+        val flag = true
+
+        val d1 = new Derived1
+        val d2 = new Derived2
+
+        val x = if (flag) new Derived1 else new Derived2
+
+        x.doit(3)
+
+        println(x)
+        }
+    }

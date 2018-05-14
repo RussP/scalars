@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -o nounset # exit when reading any unset variable
+set -o errexit # exit when any command returns an error
+
+trap 'exit' INT TERM # exit when interrupted or terminated
+
+cwd=$(pwd)
+
+if [ ${cwd##*/} != "scalar" ]; then echo "wrong dir"; exit; fi
+
+cd src/main/scala
+./scalar-on
+cd $cwd
+sbt package
+for jar in target/*.jar; do cp $jar ${jar##*/}.on; done
+
+cd src/main/scala
+./scalar-off
+cd $cwd
+sbt package
+for jar in target/*.jar; do cp $jar ${jar##*/}.off; done

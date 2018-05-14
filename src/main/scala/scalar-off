@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ln -sf Scalar.scala.off Scalar.scala

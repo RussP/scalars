@@ -1,0 +1,65 @@
+
+/****************************************************************************
+ThruServer class by Russ Paielli implements a pair of TCP/IP socket
+servers, one for input, and the one for output. Can also be configured
+for file replay mode instead of using a socket.
+************************************************************************** */
+
+import types._
+import tools._
+import break._
+import resource._
+
+import java.io._
+import java.net._
+
+class ThruServer( // server through a TCP/IP socket or direct file access
+    val replay: Boolean = false, // flag to indicate file replay mode (no socket)
+    val port1: Int = 4446, // the port number of the input socket if used
+    val port2: Int = 4448, // the port number of the output socket if used
+    val inFile: String = "", // the input file if a socket is not used
+    val outFile: String = "", // the output file if a socket is not used
+    show: Boolean = true // flag for extra output to System.out
+    ) {
+
+    if (show) {
+
+        if (replay) {
+            System.out.println("\n\tinFile = " + inFile)
+            System.out.println("\toutFile = " + outFile + "\n")
+            }
+        else
+            System.out.println("\n\tport1 = " + port1)
+            System.out.println("\n\tport2 = " + port2 + "\n")
+
+        System.out.println("\tServer started\n") // don't remove System.out!
+        }
+
+    val server = if (not(replay)) new ServerSocket(port1) else null
+    val client = if (not(replay)) server.accept else null
+
+    val out =
+        if (not(replay)) new PrintWriter(client.getOutputStream, true)
+        else new PrintWriter(outFile)
+
+    val in =
+        if (replay) new BufferedReader(new FileReader(inFile))
+        else new BufferedReader(new InputStreamReader(
+            client.getInputStream))
+
+    out.println("") // needed to get started
+
+    def close {
+
+        out.close
+        in.close
+
+        if (not(replay)) { server.close; client.close }
+
+        if (show) System.out.println("\n\n\tServer closed\n") // don't remove System.out!
+        }
+
+    def readLine: String = in.readLine // read message from client
+
+    def println(line: String) { out.println(line) } // output to client or file
+    }
