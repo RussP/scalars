@@ -252,6 +252,20 @@ package object scalar { // inefficient version with unit compatibility checks
 
   def copy(d: Real): Real = d
 
+  val err1 = "WARNING: trig arg should be scalar (use rad or deg)\n"
+
+  def sin(x: Real): Real = { throw new RuntimeException(err1); math.sin(x) }
+  def cos(x: Real): Real = { throw new RuntimeException(err1); math.cos(x) }
+  def tan(x: Real): Real = { throw new RuntimeException(err1); math.tan(x) }
+
+  def sin(x: Scalar): Real = math.sin(Real(x))
+  def cos(x: Scalar): Real = math.cos(Real(x))
+  def tan(x: Scalar): Real = math.tan(Real(x))
+
+  def asin(x: Scalar): Scalar = math.asin(Real(x))
+  def acos(x: Scalar): Scalar = math.acos(Real(x))
+  def atan(x: Scalar): Scalar = math.atan(Real(x))
+
   def atan2(y: Scalar, x: Scalar): Scalar = {
 
     x.checkUnits(y)

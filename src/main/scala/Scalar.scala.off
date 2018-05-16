@@ -39,6 +39,14 @@ package object scalar { // efficient version without unit compatibility checks
   def signum(s: Real): Real = math.signum(s)
   def atan2(y: Real, x: Real): Real = math.atan2(y, x)
 
+  def sin(x: Real): Real = math.sin(x)
+  def cos(x: Real): Real = math.cos(x)
+  def tan(x: Real): Real = math.tan(x)
+
+  def asin(x: Scalar): Scalar = math.asin(Real(x))
+  def acos(x: Scalar): Scalar = math.acos(Real(x))
+  def atan(x: Scalar): Scalar = math.atan(Real(x))
+
   private var convertTo = Map[Text, Real]() // output conversion factors
   private var nameToUnitMap = Map[Text, Real]() // map of names to units
 

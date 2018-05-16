@@ -72,14 +72,6 @@ package object mathx { // various math functions for Scalars
   def cube(s: Scalar): Scalar = s * s * s
   def hypot(x: Scalar, y: Scalar): Scalar = sqrt((x*x)+(y*y))
 
-  def sin(x: Scalar): Real = math.sin(Real(x))
-  def cos(x: Scalar): Real = math.cos(Real(x))
-  def tan(x: Scalar): Real = math.tan(Real(x))
-
-  def asin(x: Scalar): Real = math.asin(Real(x))
-  def acos(x: Scalar): Real = math.acos(Real(x))
-  def atan(x: Scalar): Real = math.atan(Real(x))
-
   def min(x: Scalar*): Scalar = x.min
   def max(x: Scalar*): Scalar = x.max
 
