@@ -9,20 +9,29 @@ package object mathx { // various math functions for Scalars
   val TwoPi = 2 * Pi
   val HalfPi = Pi / 2
 
-  def scalarSteps(start: Scalar, end: Scalar, step: Scalar): Vector[Scalar] = {
+  def scalarSteps(start: Scalar, end: Scalar, step: Scalar, tol: Real=1e-8):
+    Vector[Scalar] = {
+
+    def dec(x: Scalar) = BigDecimal(Real(x))
 
     val inc = abs(step)
-    val sgn = signum(step)
+    val sgn = dec(signum(step))
+    val start1 = dec(start/inc)
+    val end1 = dec(end/inc + tol * step)
 
-    (Real(start/inc) to Real(end/inc) by sgn).map(_ * inc).toVector
+    (start1 to end1 by sgn).map(_.toDouble).map(_ * inc).toVector
+
+    //import scala.collection.immutable.Range.BigDecimal.inclusive
+    //inclusive(start1, end1, sgn).map(_.toDouble).map(_ * inc).toVector
     }
 
-  def scalarStepsx(start: Scalar, end: Scalar, step: Scalar): Vector[Scalar] = {
-    // same as scalarSteps except guaranteed to include end point
+  def scalarStepsx(start: Scalar, end: Scalar, step: Scalar, tol: Real=1e-3):
+    Vector[Scalar] = { // scalarSteps guaranteed to include end point
 
     val steps = scalarSteps(start, end, step)
-
-    if (areClose(steps.last, end)) steps else steps :+ end
+    val endDif = abs((steps.last - end) / step)
+    if (endDif < tol) steps else steps :+ end
+    //if (areClose(steps.last, end)) steps else steps :+ end
     }
 
   def normAngle(angle: Scalar): Scalar = { // equivalent angle in range [-Pi,Pi]
