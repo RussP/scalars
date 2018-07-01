@@ -30,14 +30,16 @@ package object ATMunits { // standard units for Air Traffic Management
 
   //output_units("nmi", "Min")
 
-  def timeSpanFormat(time: Scalar): String = {
+  def timeFormat(time: Scalar): String = {
 
-    val hr1 = Int(time / hr)
-    val min1 = Int((time % hr) / Min)
-    val sec1 = time % Min
+    val atime = abs(time)
+    val hr1 = Int(atime / hr)
+    val min1 = Int((atime % hr) / Min)
+    val sec1 = atime % Min
+    val sign = if (time < 0) "-" else ""
 
-    if (hr1 == 0) "%d:%04.1f".form(min1, sec1)
-    else "%d:%02d:%04.1f".form(hr1, min1, sec1)
+    if (hr1 == 0) "%s%d:%02.0f".form(sign, min1, sec1)
+    else "%s%d:%02d:%02.0f".form(sign, hr1, min1, sec1)
     }
 
   }
