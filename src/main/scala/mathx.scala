@@ -29,9 +29,10 @@ package object mathx { // various math functions for Scalars
     Vector[Scalar] = { // scalarSteps guaranteed to include end point
 
     val steps = scalarSteps(start, end, step)
+    if (steps.isEmpty) return steps
+
     val endDif = abs((steps.last - end) / step)
     if (endDif < tol) steps else steps :+ end
-    //if (areClose(steps.last, end)) steps else steps :+ end
     }
 
   def normAngle(angle: Scalar): Scalar = { // equivalent angle in range [-Pi,Pi]
