@@ -36,15 +36,17 @@ object Plot {
 protected case class Objectx(pos: Vector[Scalar], txt: Text) // for geometric objects/text
 
 class Plot(fileName: Text, title: Text="", subtitle: Text="",
-  xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
-  xref: Scalar=0, grid: Bool=false,
-
-  protected var xmin: Real =  1e20,
-  protected var xmax: Real = -1e20,
-  protected var ymin: Real =  1e20,
-  protected var ymax: Real = -1e20)
-
+    xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
+    xref: Scalar=0, grid: Bool=false)
   extends PrintWriter(fileName) {
+
+  protected var xmin =  1e20
+  protected var xmax = -1e20
+  protected var ymin =  1e20
+  protected var ymax = -1e20
+
+  protected var xRangeSet = false
+  protected var yRangeSet = false
 
   protected var targets = Set[Int](10) // target (curve) numbers in use
 
@@ -205,40 +207,42 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     }
 
   def setxmin(xmin: Scalar) {
+    xRangeSet = true
     this.xmin = xmap(xmin)
     printlnx("\n@world xmin ", this.xmin)
     }
 
   def setxmax(xmax: Scalar) {
+    xRangeSet = true
     this.xmax = xmap(xmax)
     printlnx("\n@world xmax ", this.xmax)
     }
 
   def setymin(ymin: Scalar) {
+    yRangeSet = true
     this.ymin = ymap(ymin)
     printlnx("\n@world ymin ", this.ymin)
     }
 
   def setymax(ymax: Scalar) {
+    yRangeSet = true
     this.ymax = ymap(ymax)
     printlnx("\n@world ymax ", this.ymax)
     }
 
   def setxRange(xmin: Scalar, xmax: Scalar) {
-    println("\n@autoscale onread yaxes")
+    xRangeSet = true
     setxmin(xmin)
     setxmax(xmax)
-  }
+    }
 
   def setyRange(ymin: Scalar, ymax: Scalar) {
-    println("\n@autoscale onread xaxes")
+    yRangeSet = true
     setymin(ymin)
     setymax(ymax)
-  }
+    }
 
   def setAxisRanges(xmin: Scalar, ymin: Scalar, xmax: Scalar, ymax: Scalar) {
-
-    println("\n@autoscale onread none") // don't use setxRange, setxRange!
 
     setxmin(xmin)
     setxmax(xmax)
@@ -477,8 +481,13 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     if (xmin > xmax || ymin > ymax) plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
+    if (xRangeSet && yRangeSet) println("\n@autoscale onread none") else
+    if (xRangeSet) println("\n@autoscale onread yaxes") else
+    if (yRangeSet) println("\n@autoscale onread xaxes")
+
     for (o <- objects if inFrame(o.pos)) println(o.txt)
     if (not(ticksSet)) setTicks
+
     super.close
     }
   }
