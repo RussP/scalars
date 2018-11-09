@@ -1,8 +1,8 @@
 
-import mathx._
-import scalar._
+import mathx_._
+import scalar_._
 
-package object ATMunits { // standard units for Air Traffic Management
+package object ATMunits_ { // standard units for Air Traffic Management
 
   val rad = base_unit("", "radian", "angle") // dimensionless
   val sec = base_unit("sec", "second", "time")

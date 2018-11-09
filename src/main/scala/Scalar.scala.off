@@ -6,9 +6,9 @@ For documentation and user guide, see http://RussP.us/scalar-scala.htm
 
 import language.implicitConversions
 
-import scalar.Vectorx._
+import scalar_.Vectorx._
 
-package object scalar { // efficient version without unit compatibility checks
+package object scalar_ { // efficient version without unit compatibility checks
 
   type Scalar = Real
   type Real = Double
@@ -107,7 +107,7 @@ package object scalar { // efficient version without unit compatibility checks
   def Vectr(reals: Real*): Vectrx = Vectrx(Vector(reals:_*))
   }
 
-package scalar {
+package scalar_ {
 
   class Scalar1(val scalar: Scalar) { // for "scalar * vector" multiplication
     def * (vector: Vector[Scalar]): Vector[Scalar] = vector * scalar

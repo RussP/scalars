@@ -18,6 +18,8 @@ scalacOptions += "-feature"
 
 scalacOptions += "-Ywarn-value-discard"
 
+scalacOptions += "-Ywarn-unused-import"
+
 //scalacOptions += "-classpath /home/rpaielli/TAAC/acesrefactor/lib/aces/plugins/jars"
 
 //scalacOptions += "-Ywarn-dead-code"

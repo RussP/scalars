@@ -1,5 +1,5 @@
 
-package break { // implementation of "break" and "continue"
+package break_ { // implementation of "break" and "continue"
 
   import scala.util.control.ControlThrowable // for efficiency
 
@@ -7,7 +7,7 @@ package break { // implementation of "break" and "continue"
   class Break    extends RuntimeException with ControlThrowable
   }
 
-package object break {
+package object break_ {
 
   def continues(op: => Unit) { try { op } catch { case e: Continue => }}
   def breaks   (op: => Unit) { try { op } catch { case e: Break => }}
@@ -20,7 +20,7 @@ package object break {
 
 // example usage:
 
-import break._
+import break_._
 
 breaks { for (i <- 0 to 5) continues {
 

@@ -1,7 +1,7 @@
 
-package object mathx { // various math functions for Scalars
+package object mathx_ { // various math functions for Scalars
 
-  import scalar._
+  import scalar_._
 
   private type Real = Double
 

@@ -15,10 +15,10 @@ widgetWeight = 20 * kg
 
 ************************************************************************** */
 
-package tools
+package tools_
 
-import types._
-import scalar._
+import types_._
+import scalar_._
 
 case class ConfigReader(fileName: Text) {
 

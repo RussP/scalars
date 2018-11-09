@@ -46,9 +46,9 @@ Here is an example of its usage (assuming the command line shown above):
 
 ************************************************************************** */
 
-package tools
+package tools_
 
-import types._
+import types_._
 
 case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
     numArgsReq: Int=0)
@@ -146,8 +146,8 @@ case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
   // read and record assignment-style options:
 
   protected def record[T](option: Text, default: T, value: T): T = {
-    optsUsed += option -> types.Text(value)
-    if (isSet(option)) nonDefArgs += option -> types.Text(value) // <-- wrong
+    optsUsed += option -> types_.Text(value)
+    if (isSet(option)) nonDefArgs += option -> types_.Text(value) // <-- wrong
     value
     }
 
@@ -170,7 +170,7 @@ case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
   // read/record regular args, with default if no value given on com line:
 
   protected def record[T](value: T): T = {
-    argsUsed += types.Text(value)
+    argsUsed += types_.Text(value)
     value
     }
 

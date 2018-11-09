@@ -1,7 +1,7 @@
 
 import language.implicitConversions
 
-package object types { // type aliases, conversions, and other useful stuff
+package object types_ { // type aliases, conversions, and other useful stuff
 
   type Real = Double // better name for Double
   type Bool = Boolean // shorter name for Boolean
@@ -25,7 +25,7 @@ package object types { // type aliases, conversions, and other useful stuff
   def TextBuilder(t: Text="") = new StringBuilder(t) // better name!
   implicit def StringBuilderToText(t: StringBuilder) = Text(t)
 
-  type VList[T] = Vector[T]
+  type VList[T] = Vector[T] // another name for Vector
   def VList[T](x: T*) = Vector[T](x: _*)
 
   def enter( // prompt user to enter input

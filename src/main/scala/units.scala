@@ -19,10 +19,10 @@ http://ts.nist.gov/ts/htdocs/230/235/appxc/appxc.htm
 http://en.wikipedia.org/wiki/Category:Units_of_measure
 *************************************************************************** */
 
-import mathx._
-import scalar._
+import mathx_._
+import scalar_._
 
-package object units { // standard physical units
+package object units_ { // standard physical units
 
   val rad = base_unit("", "radian", "angle")
 

@@ -1,6 +1,6 @@
-package tools
+package tools_
 
-import types._
+import types_._
 
 case class PrintWriterx(fileName: Text=nullFile)
   extends java.io.PrintWriter(fileName) {

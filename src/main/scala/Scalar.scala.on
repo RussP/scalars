@@ -4,18 +4,18 @@ Representation of physical scalars by Russ Paielli <http://RussP.us>.
 For documentation and user guide, see http://RussP.us/scalar-scala.htm
 ************************************************************************** */
 
-import types._
-import scalar.Vectorx._
+import types_._
+import scalar_.Vectorx._
 
 import language.implicitConversions
 
-package object scalar { // inefficient version with unit compatibility checks
+package object scalar_ { // inefficient version with unit compatibility checks
 
   def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
   def Long(s: Scalar) = s.toLong // ditto
   def Real(s: Scalar) = s.toDouble // ditto
 
-  private[scalar] case class Units (units: Map[Text, Real]=Map()) {
+  private[scalar_] case class Units (units: Map[Text, Real]=Map()) {
     // the units part of a scalar without the numerical coefficient
 
     def this(s: Text) = this(Map[Text, Real](s -> 1))
@@ -106,7 +106,7 @@ package object scalar { // inefficient version with unit compatibility checks
     def inverse = Units(units.map(u => (u._1, -u._2)))
     }
 
-  case class Scalar private[scalar] (num: Real=1, units: Units=Units())
+  case class Scalar private[scalar_] (num: Real=1, units: Units=Units())
     extends Ordered[Scalar] {
 
     def this(u: Units) = this(1, u)

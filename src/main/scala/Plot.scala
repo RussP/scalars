@@ -4,17 +4,19 @@ Plotting utilities by Russ Paielli based on the free GRACE plotting
 program obtained from "http://plasma-gate.weizmann.ac.il/Grace"
 ************************************************************************** */
 
-package tools
+package tools_
 
-import types._
-import mathx._
-import scalar._
+import types_._
+import scalar_._
 import Vectorx._
 
 import java.io.PrintWriter
 import scala.language.reflectiveCalls
 
 object Plot {
+
+  case class TargetStyle(lineStyle: Text="solid", lineWidth: Real=1,
+      symbol: Text="", size: Real=0.5, color: Text="black", legend: Text="")
 
   def setTicks(length: Real): (Real, Int) = {
 
@@ -85,6 +87,11 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     }
 
   setLabels(title, subtitle, xlabel, ylabel)
+
+  def target(s: Plot.TargetStyle) {
+
+    target(s.lineStyle, s.lineWidth, s.symbol, s.size, s.color, s.legend)
+    }
 
   def target(lineStyle: Text="solid", lineWidth: Real=1, symbol: Text="",
     size: Real=0.5, color: Text="black", legend: Text="",

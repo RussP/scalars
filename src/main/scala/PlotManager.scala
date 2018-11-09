@@ -1,8 +1,8 @@
 // utility class for managing and combining GRACE plots into pdf files
 
-package tools
+package tools_
 
-import types._
+import types_._
 
 import java.io._
 
