@@ -3,7 +3,6 @@
 package tools_
 
 import types_._
-
 import java.io._
 
 case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
@@ -11,63 +10,33 @@ case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
   val run = Runtime.getRuntime
 
   val testDir = new File(dir)
-  val outFile = new File(dir, name + ".tex")
+  val outFile = new File(dir, s"$name.tex")
 
-  if (startClean) {
-    removeFiles(".ps") // clean out old files (this must be here!)
-    removeFiles(".dat")
-    removeFiles(".pdf")
-    }
+  if (startClean) cleanup() // clean out old or unneeded files
 
   val out = new PrintWriter(outFile)
+
+  private def cleanup(numFiles: Int=2) {
+
+    if (numFiles > 1) removeFiles(".dat")
+    removeFiles(".ps")
+    removeFiles(".pdf")
+    removeFiles(".tex")
+    removeFiles(".log")
+    removeFiles(".aux")
+    }
 
   private def removeFiles(txt: Text) {
 
     val filter = new FilenameFilter {
-      override def accept(dir: File, file: String) =
-        file.startsWith(name) && (file.endsWith(txt))
+      override def accept(dir: File, file: String) = {
+        file.startsWith(name) && (file.endsWith(txt)) && file != s"$name.pdf"
+        }
       }
 
     val files = testDir.listFiles(filter).mkString(" ")
     run.exec("rm -f " + files).waitFor // use File.delete instead?
     ()
-    }
-
-  private def latexToPDFplotsXXX() = {
-
-    val namex = name + "-randomstuffxxx9871" // avoid name clash
-
-    run.exec(s"latex $name").waitFor
-    run.exec(s"dvips -o $namex.ps $name").waitFor // stuck on this!
-    //Thread.sleep(10000) // use pause instead to avoid hanging
-    run.exec(s"ps2pdf $namex.ps $name.pdf").waitFor
-    run.exec(s"rm -f $name.tex $name.log $name.aux $name.dvi $namex.ps")
-
-    removeFiles(".ps")
-    }
-
-  private def latexToPDFplotsZZZ() = {
-
-    import scala.sys.process._
-
-    val namex = name + "-randomstuffxxx9871" // avoid name clash
-
-    s"latex --interaction=batchmode $name".!
-    s"dvips -q -o $namex.ps $name".!
-    s"ps2pdf $namex.ps $name.pdf".!
-    s"rm -f $name.tex $name.log $name.aux $name.dvi $namex.ps".!
-
-    removeFiles(".ps")
-    }
-
-  private def latexToPDFplots() = {
-
-    import scala.sys.process._
-
-    s"tex2pdf1 $name".!
-
-    removeFiles(".ps")
-    //removeFiles(".tex")
     }
 
   def combinePlots(display: Bool=true, save: Bool=false) {
@@ -77,38 +46,21 @@ case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
 
     printLatexHeader
 
-    for (f <- files) out.println("\\plot{" + f.replace(".dat",".ps") + "}")
+    for (f <- files) out.println("\\plot{" + f.replace(".dat",".pdf") + "}")
     out.println("\n\\end{document}")
     out.close
 
     for (file <- files.par) {
       val psfile = file.replace(".dat",".ps")
-      run.exec(s"gracebat -printfile $psfile $file")
+      run.exec(s"gracebat -printfile $psfile $file").waitFor
+      run.exec(s"ps2pdf $psfile").waitFor
       }
 
-    latexToPDFplots
+    run.exec(s"pdflatex $name").waitFor
 
     if (display) displayPlots
 
-    if (save) return
-
-    if (files.length > 1) removeFiles(".dat")
-    removeFiles(".tex")
-    }
-
-  private def printLatexHeader() {
-
-    out.println("\\documentclass{slides}")
-    out.println("\\usepackage[dvips]{graphics}")
-    out.println("")
-    out.println("\\setlength{\\topmargin}{6in}")
-    out.println("\\setlength{\\oddsidemargin}{-0.9in}")
-    out.println("\\setlength{\\evensidemargin}{\\oddsidemargin}")
-    out.println("")
-    out.println("\\newcommand{\\plot}[1]{\\begin{slide}")
-    out.println("    \\includegraphics[1,1]{#1}\\end{slide}}")
-    out.println("")
-    out.println("\\begin{document}\n")
+    if (not(save)) cleanup(files.length)
     }
 
   def displayPlots() {
@@ -116,5 +68,25 @@ case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
     val runningLocally = System.getenv("SSH_CLIENT") == null
     if (runningLocally) run.exec(s"acroread $name.pdf")
     ()
+    }
+
+  private def printLatexHeader() {
+
+    out.println("\\documentclass[landscape]{slides}")
+    out.println("\\usepackage{graphicx}")
+    out.println("\\usepackage{epstopdf}")
+    out.println("")
+    out.println("\\setlength{\\textwidth}{11in}")
+    out.println("\\setlength{\\textheight}{8.5in}")
+    out.println("\\setlength{\\topmargin}{-1.5in}")
+    out.println("\\setlength{\\oddsidemargin}{-1in}")
+    out.println("\\setlength{\\evensidemargin}{\\oddsidemargin}")
+    out.println("")
+    out.println("\\newcommand{\\plot}[1]{")
+    out.println("  \\begin{slide}\\begin{center}")
+    out.println("    \\includegraphics[width=10.5in,angle=0]{#1}")
+    out.println("  \\end{center}\\end{slide}}")
+    out.println("")
+    out.println("\\begin{document}\n")
     }
   }
