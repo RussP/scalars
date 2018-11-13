@@ -5,7 +5,7 @@ package tools_
 import types_._
 import java.io._
 
-case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
+case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
 
   val run = Runtime.getRuntime
 
@@ -18,12 +18,13 @@ case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
 
   private def cleanup(numFiles: Int=2) {
 
-    if (numFiles > 1) removeFiles(".dat")
     removeFiles(".ps")
-    removeFiles(".pdf")
     removeFiles(".tex")
     removeFiles(".log")
     removeFiles(".aux")
+    removeFiles(".pdf")
+
+    if (numFiles > 1) removeFiles(".dat")
     }
 
   private def removeFiles(txt: Text) {
@@ -35,37 +36,58 @@ case class PlotManager(name: Text, dir: Text = ".", startClean: Bool=true) {
       }
 
     val files = testDir.listFiles(filter).mkString(" ")
-    run.exec("rm -f " + files).waitFor // use File.delete instead?
+
+    run.exec(s"rm -f $files").waitFor // use File.delete instead?
     ()
     }
 
   def combinePlots(display: Bool=true, save: Bool=false) {
 
-    val files = testDir.listFiles.toList.map(_.getName)
-      .filter(_.startsWith(name)).filter(_.endsWith(".dat")).sorted
+    val utag = "-utag1zqp" // unique tag to avoid name clash
+
+    val files = {
+
+      val files1 = testDir.listFiles.toList.map(_.getName)
+        .filter(_.startsWith(name)).filter(_.endsWith(".dat"))
+        .map(_.replace(".dat",".pdf")).sorted
+
+      val sameName = s"$name.pdf"
+      val indx = files1.indexOf(sameName)
+
+      if (indx >= 0) { // avoid name clash with output file name
+        val newName = s"$name$utag.pdf"
+        val sameFile = new File(sameName)
+        val newFile = new File(newName)
+        sameFile.renameTo(newFile)
+        files1.updated(indx, newName)
+        }
+
+      else files1
+      }
 
     printLatexHeader
 
-    for (f <- files) out.println("\\plot{" + f.replace(".dat",".pdf") + "}")
+    for (file <- files) out.println(s"\\plot{$file}")
     out.println("\n\\end{document}")
     out.close
 
-    for (file <- files.par) {
-      val psfile = file.replace(".dat",".ps")
-      run.exec(s"gracebat -printfile $psfile $file").waitFor
-      run.exec(s"ps2pdf $psfile").waitFor
+    for (file <- files.par) { // ".par" for parallel processing
+      val datFile = file.replace(".pdf",".dat").replace(utag,"")
+      val psFile = file.replace(".pdf",".ps")
+      run.exec(s"gracebat -printfile $psFile $datFile").waitFor
+      run.exec(s"ps2pdf $psFile").waitFor
       }
 
     run.exec(s"pdflatex $name").waitFor
 
     if (display) displayPlots
-
     if (not(save)) cleanup(files.length)
     }
 
   def displayPlots() {
 
     val runningLocally = System.getenv("SSH_CLIENT") == null
+
     if (runningLocally) run.exec(s"acroread $name.pdf")
     ()
     }
