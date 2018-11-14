@@ -30,6 +30,12 @@ package object ATMunits_ { // standard units for Air Traffic Management
 
   //output_units("nmi", "Min")
 
+  def bankAngle(gspeed: Scalar, turnrad: Scalar) =
+      atan(sqr(gspeed)/(turnrad*gacc))
+
+  def turnRadius(gspeed: Scalar, bankang: Scalar) =
+      sqr(gspeed)/(gacc*tan(bankang))
+
   def timeFormat(time: Scalar): String = {
 
     val atime = abs(time)
