@@ -49,7 +49,9 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
 
       val files1 = testDir.listFiles.toList.map(_.getName)
         .filter(_.startsWith(name)).filter(_.endsWith(".dat"))
-        .map(_.replace(".dat",".pdf")).sorted
+        .map(x=>replaceAtEnd(x,".dat",".pdf")).sorted
+
+      if (files1.isEmpty) return
 
       val sameName = s"$name.pdf"
       val indx = files1.indexOf(sameName)
@@ -72,8 +74,8 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
     out.close
 
     for (file <- files.par) { // ".par" for parallel processing
-      val datFile = file.replace(".pdf",".dat").replace(utag,"")
-      val psFile = file.replace(".pdf",".ps")
+      val datFile = replaceAtEnd(file,".pdf",".dat").replace(utag,"")
+      val psFile = replaceAtEnd(file,".pdf",".ps")
       run.exec(s"gracebat -printfile $psFile $datFile").waitFor
       run.exec(s"ps2pdf $psFile").waitFor
       }
@@ -111,4 +113,11 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
     out.println("")
     out.println("\\begin{document}\n")
     }
+
+    def replaceAtEnd(txt: Text, ext1: Text, ext2: Text): Text =
+      // used to change file name extension
+
+      if (not(txt.endsWith(ext1))) txt else
+        txt.substring(0, txt.length - ext1.length) + ext2
+
   }
