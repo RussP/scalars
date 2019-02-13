@@ -51,7 +51,7 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
         .filter(_.startsWith(name)).filter(_.endsWith(".dat"))
         .map(x=>replaceAtEnd(x,".dat",".pdf")).sorted
 
-      if (files1.isEmpty) return
+      if (files1.isEmpty) { cleanup(); return }
 
       val sameName = s"$name.pdf"
       val indx = files1.indexOf(sameName)
