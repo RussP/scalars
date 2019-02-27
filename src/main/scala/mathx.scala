@@ -17,7 +17,7 @@ package object mathx_ { // various math functions for Scalars
     val inc = abs(step)
     val sgn = dec(signum(step))
     val start1 = dec(start/inc)
-    val end1 = dec(end/inc + tol * step)
+    val end1 = dec((end + tol * step) / inc)
 
     (start1 to end1 by sgn).map(_.toDouble).map(_ * inc).toVector
 

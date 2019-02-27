@@ -75,5 +75,8 @@ package object types_ { // type aliases, conversions, and other useful stuff
     proc.start
     }
 
+  lazy val ncores = Runtime.getRuntime().availableProcessors()
+  def printNumCores() { println(s"\n$ncores processor cores available") }
+
   val nullFile = if (util.Properties.isWin) "nul" else "/dev/null"
   }
