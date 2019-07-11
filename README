@@ -1,0 +1,21 @@
+
+An open-source scalar package and associated software tools have been
+developed in the Scala programming language, including plotting tools
+based on the free GRACE plotting package. The scalar package represents
+physical scalars and can help to prevent errors involving physical units
+in engineering and scientific computation. The scalar package includes a
+complete implementation of the standard SI metric system of units and
+many common non-metric units. The design also allows users to easily
+define a specialized or reduced set of physical units for any particular
+application or domain. The scalar package can be used in two different
+modes: one mode provides unit compatibility checking but is slower, and
+the other mode bypasses the compatibility checks but is much faster and
+still prevents the most common type of unit error. Switching between the
+two modes requires no changes in the user's code, making it convenient
+and usable with no significant performance penalty for even the most
+computationally intensive applications.
+
+A user manual is provided in the file called scalar-guide.pdf.
+
+This software package is released under the NASA Open Source Agreement
+(NOSA). See the license file for details.
