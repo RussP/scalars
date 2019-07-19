@@ -19,13 +19,13 @@ computationally intensive applications.
 
 ## User Manual
 
-A user manual is provided in the file scalar-guide.pdf
-(https://https://github.com/RussP/scalars/scalar-guide.pdf).
+A user manual is provided in the file [scalar-guide.pdf]
+(https://github.com/RussP/scalars/blob/master/scalar-guide.pdf).
 
 ## License
 
 This software is released under the [NASA Open Source Agreement Version
-1.3](https://github.com/RussP/scalars/license.pdf).
+1.3](https://github.com/RussP/scalars/blob/master/license.pdf).
 
 ## Notices
 
