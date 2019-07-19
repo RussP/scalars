@@ -19,8 +19,8 @@ computationally intensive applications.
 
 ## User Manual
 
-A user manual is provided in the file [scalar-guide.pdf]
-(https://github.com/RussP/scalars/blob/master/scalar-guide.pdf).
+A user manual is provided in the file
+[scalar-guide.pdf](https://github.com/RussP/scalars/blob/master/scalar-guide.pdf).
 
 ## License
 
