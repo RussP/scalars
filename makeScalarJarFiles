@@ -9,13 +9,13 @@ cwd=$(pwd)
 
 if [ ${cwd##*/} != "scalar" ]; then echo "wrong dir"; exit; fi
 
-cd src/main/scala
+cd src/main
 ./scalar-on
 cd $cwd
 sbt package
 for jar in target/*.jar; do cp $jar ${jar##*/}.on; done
 
-cd src/main/scala
+cd src/main
 ./scalar-off
 cd $cwd
 sbt package
