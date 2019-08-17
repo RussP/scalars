@@ -1,0 +1,79 @@
+
+/****************************************************************************
+This file by Russ Paielli (http://RussP.us) implements convenience
+functions printx and printlnx, which extend the print and println
+functions to accept multiple arguments and print them with a space
+between them (similar to the Python print function). It also implements
+functions printxErr and printlnxErr for similar output to standard
+error.
+
+Class PrintWriterx extends the Java PrintWriter class with similar
+methods called printx and printlnx. These methods generalize the print
+and println methods of the PrintWriter class to take multiple arguments
+and print a blank space (or any other designated separator) between
+arguments.
+
+Class PrintWriterx also allows for a null output file, and it allows the
+user to set an output level to control the level of output that goes to
+a file. This can be useful for convenient control of logging
+verbosity. If the output level is set to zero, no output goes to the
+file. If the output level is set to 1 (the default), then printx and
+printlnx will send output to the file, but print2 and println2 (and
+higher) will not. At output level 2, print2 and println2 will send
+output to the file, and so forth.
+************************************************************************** */
+
+package tools
+
+import java.io._
+
+private object printN {
+
+    val nullFile = if (util.Properties.isWin) "nul" else "/dev/null"
+
+    def apply(out: PrintStream, newln: Boolean, args: Any*) {
+        for (arg <- args) out.print(arg.toString + " ")
+        if (newln) out.println
+        }
+
+    def printx(args: Any*) { printN(System.out, false, args: _*) }
+    def printlnx(args: Any*) { printN(System.out, true, args: _*) }
+
+    def printxErr(args: Any*) { printN(System.err, false, args: _*) }
+    def printlnxErr(args: Any*) { printN(System.err, true, args: _*) }
+    }
+
+object printx { def apply(args: Any*) { printN.printx(args: _*) } }
+object printlnx { def apply(args: Any*) { printN.printlnx(args: _*) } }
+
+object printxErr { def apply(args: Any*) { printN.printxErr(args: _*) } }
+object printlnxErr { def apply(args: Any*) { printN.printlnxErr(args: _*) } }
+
+class PrintWriterx(val fileName: String=printN.nullFile, val level: Int=1,
+    val sep: String=" ") extends PrintWriter(fileName) {
+
+    def this(file: File) = this(file.toString)
+
+    val noFile = fileName == printN.nullFile
+
+    private def printAtLevel(level: Int, newln: Boolean, args: Any*) {
+
+        if (noFile || level > this.level) return
+
+        val txt = new StringBuilder
+        for (arg <- args) txt ++= arg.toString + sep
+        val out = txt.toString.dropRight(sep.length)
+
+        if (newln) println(out) else print(out)
+        }
+
+    def printx(args: Any*) { printAtLevel(1, false, args: _*) }
+    def print2(args: Any*) { printAtLevel(2, false, args: _*) }
+    def print3(args: Any*) { printAtLevel(3, false, args: _*) }
+    def print4(args: Any*) { printAtLevel(4, false, args: _*) }
+
+    def printlnx(args: Any*) { printAtLevel(1, true, args: _*) }
+    def println2(args: Any*) { printAtLevel(2, true, args: _*) }
+    def println3(args: Any*) { printAtLevel(3, true, args: _*) }
+    def println4(args: Any*) { printAtLevel(4, true, args: _*) }
+    }

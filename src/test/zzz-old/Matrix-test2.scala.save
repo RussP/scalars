@@ -1,0 +1,48 @@
+
+import scalar._
+import tensor._
+import ATMunits._
+import Matrix._
+
+object MatrixTest2 {
+
+    def echoVector(vec: Vector) = vec
+
+    def main(args: Array[String]) {
+
+        println
+
+        var vec2 = Vector(3*nmi, 4*nmi, 5*nmi)
+        var vec3 = Vector(2*nmi, 3*nmi, 4*nmi)
+
+        val vec4 = vec2 + vec3
+
+        //println("vec2 = " + vec2.format("nmi"))
+        println("vec2 = " + echoVector(vec2/nmi))
+
+        println("vec3 = " + vec3.format("nmi"))
+        println("vec4 = " + vec4.format("nmi"))
+        println("vec2/nmi = " + vec2/nmi)
+        println("2 * vec2/nmi = " + (2 * vec2/nmi))
+        println("2.0 * vec2/nmi = " + (2.0 * vec2/nmi))
+        println("-vec2/nmi = " + -vec2/nmi)
+        println("vec2 = " + vec2.format("nmi", "%6.3f"))
+        println("vec2.trunc(2) = " + vec2.trunc(2).format("nmi"))
+
+        val mat1 = Matrix(row(3*nmi, 4*nmi, 5*nmi), row(2*nmi, 3*nmi, 4*nmi))
+        println("mat1 = " + mat1.format("nmi"))
+
+        //var mat0 = Matrix()
+        var mat2 = new Matrix(2,3)
+        var vec5 = new Vector(3)
+
+        vec5(1) = 5
+        println("4 * ft * vec5 = " + (4 * ft * vec5))
+
+        //println("mat0 = " + mat0)
+        println("mat2 = " + mat2)
+        println("vec5 = " + vec5)
+
+        println
+        }
+    }

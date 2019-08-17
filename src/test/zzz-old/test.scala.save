@@ -1,0 +1,78 @@
+#!/bin/sh
+exec scala -sourcepath ../../main/scala "$0" "$@"
+!#
+
+import Mathx._
+import Scalar._
+import ATMunits._
+
+println()
+
+println( sin(30*deg) - 0.5 )
+println( 10 * deg == Pi / 18 )
+println( "true = " + areClose(10 * deg, Pi / 18) )
+println( "true = " + areClose(sin(30*deg), 0.5) )
+
+output_units("nmi", "Min")
+output_units("nmi", "lbf", "kn", "deg")
+
+println( 2 * kft / kft - 2 + " = 0" )
+println( 3 * nmi + " = 3 nmi" )
+println( -nmi + " = -1 nmi" )
+println( 30 * sec + " = 0.5 Min" )
+println( 3 * lbf + " = 3 lbf" )
+println( 3.3 * kn + " = 3.3 kn" )
+println( "utype(nmi) = " + utype(3*nmi) )
+println( "utype(pow(nmi,55)) = " + utype(pow(nmi,55)) )
+println( "sin(30 * deg) = " + sin(30 * deg) )
+println( "cos(60 * deg) = " + cos(60 * deg) )
+println( "tan(45 * deg) = " + tan(45 * deg) )
+println( "atan2(3 * nmi, 3 * nmi) = " + atan2(3 * nmi, 3 * nmi) )
+
+assert( 3 * nmi + 2 * nmi == 5 * nmi )
+assert( 300 * nmi / (1.5 * hr) == 200 * kn )
+assert( sqr(4 * sec) / sec == 16 * sec )
+assert( abs(-3 * sec) == 3 * sec )
+
+assert( 100 * kn * hr == 100 * nmi )
+assert( 1200 * ft / Min == 1200 * fpm )
+assert( 3.4 * kg > 3.3 * kg )
+assert( sqrt(pow(2 * lbm, 6)) == 8 * cube(lbm) )
+assert( abs(2 + 4 * ft / ft - 6) < 1e-12 )
+assert( 4 * lbf + 0 == 4 * lbf)
+assert( 0 + 4 * lbf == 4 * lbf)
+assert( -3 * kn < 0 )
+
+assert( min(2 * ft, 3 * ft) == 2 * ft )
+assert( max(2 * gacc, 3 * gacc) == 3 * gacc )
+
+assert( abs(sin(30*deg) - 0.5) < 1e-12 )
+assert( abs(cos(60*deg) - 0.5) < 1e-12 )
+assert( abs(tan(45*deg) - 1) < 1e-12 )
+
+assert( abs(atan2( 3 * nmi,  3 * nmi) -  45 * deg) < 1e-12 )
+assert( abs(atan2( 3 * nmi, -3 * nmi) - 135 * deg) < 1e-12 )
+assert( abs(atan2(-3 * nmi,  3 * nmi) +  45 * deg) < 1e-12 )
+assert( abs(atan2(-3 * nmi, -3 * nmi) + 135 * deg) < 1e-12 )
+
+try { val y = 3 * ft + 2 * sec }
+catch { case ex: RuntimeException => println("ERROR: ft + sec") }
+
+println(unitList)
+println
+
+exit()
+
+/*
+
+println(sqrt(yy))
+println(zz)
+println(xx + yy)
+println(xx % yy)
+println(xx * yy * bb)
+println(pow(bb, 3))
+println(-bb)
+println(zz + 1)
+println(1 + zz)
+println(1 + xx)
+*/

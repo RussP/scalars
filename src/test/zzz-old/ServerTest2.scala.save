@@ -1,0 +1,108 @@
+
+import types._
+import tools._
+import break._
+
+import java.io._
+import java.net._
+
+object runServerTest2 {
+
+    def main(args: Array[String]) {
+
+        val options = Set("replay", "port", "inFile", "outFile")
+        val com = new CommandLine(args, options)
+
+        val replay = com.Bool("replay", false)
+        val port1 = com.Int("port", 4446)
+        val port2 = com.Int("port", 4448)
+        val inFile = com.Text(1, "src/test/scala/ServerTest.in")
+        val outFile = com.Text(2, "src/test/scala/ServerTest.out")
+
+        val inServer = new Server(replay, port1, inFile, outFile)
+        val outServer = new Server(replay, port2, inFile, outFile)
+
+        breaks { while (true) {
+
+            Thread.sleep(1000)
+
+            val inputLines = inServer.readLine // read message from client
+            if (inputLines == null) break
+
+            inServer.println("#")
+
+            println("inputLines = |" + inputLines + "|")
+
+            val outputLines = new StringBuilder
+
+            for (inputLine <- inputLines.split(";")) {
+
+                // this is where the server processing would be done:
+                // add !!! to line to simulate processing
+
+                val outputLine = inputLine.trim + " !!!"
+
+                outputLines.append(outputLine)
+                if (inputLines.length > 1) outputLines.append("; ")
+                }
+
+            outServer.println(outputLines) // send message back to client
+            outServer.readLine
+            }}
+        }
+    }
+
+object runClientTest2 {
+
+    def dataSource(inFile: String, outFile: String, port: Int,
+        host: String="localhost") {
+
+        val socket = new Socket(host, port)
+        val toServer = new PrintWriter(socket.getOutputStream, true)
+
+        val out = new PrintWriter(outFile)
+        val in = new BufferedReader(
+            new InputStreamReader(socket.getInputStream))
+
+        for (line <- resource.linesFromFile(inFile)) {
+
+            //Thread.sleep(1000)
+
+            val fromServer = in.readLine // read line from server
+
+            println("Server: " + fromServer + "\n")
+            println("Client: " + line)
+
+            toServer.println(line) // send line to server
+            out.println(fromServer) // record server output in file
+            }
+
+        val fromServer = in.readLine // read last line from server
+
+        println("Server: " + fromServer + "\n")
+        out.println(fromServer) // record server output in file
+
+        out.close
+        in.close
+        socket.close
+        toServer.close
+        }
+
+    def client(inFile: String, outFile: String, port: Int,
+        host: String="localhost") {
+
+        }
+
+    def main(args: Array[String]) {
+
+        val com = new CommandLine(args)
+
+        val inFile = com.Text(1, "src/test/scala/ServerTest.in")
+        val outFile = com.Text(2, "src/test/scala/ServerTest.out")
+        val port1 = com.Int("port1", 4446)
+        val port2 = com.Int("port2", 4448)
+
+        dataSource(inFile, outFile, port1)
+        client(inFile, outFile, port2)
+        }
+    }

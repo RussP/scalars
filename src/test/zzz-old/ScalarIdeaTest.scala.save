@@ -1,0 +1,29 @@
+
+object xxx111 { type MyClass = MyClass2 }
+import xxx111._
+
+class MyClass1 {
+
+    override def toString = "\nHello from MyClass1\n"
+
+    def doit { println("\nI'm doing it! 1"\n) }
+    }
+
+class MyClass2 {
+
+    override def toString = "\nHello from MyClass2\n"
+
+    def doit { println("\nI'm doing it! 2"\n) }
+    }
+
+object ScalarIdeaTest {
+
+    def main(args: Array[String]) {
+
+        val myClass = new MyClass
+
+        println(myClass)
+
+        myClass.doit
+        }
+    }

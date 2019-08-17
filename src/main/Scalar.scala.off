@@ -1,0 +1,123 @@
+
+/***************************************************************************
+Representation of physical scalars by Russ Paielli <http://RussP.us>.
+For documentation and user guide, see http://RussP.us/scalar-scala.htm
+************************************************************************** */
+
+import language.implicitConversions
+
+import scalar_.Vectorx._
+
+package object scalar_ { // efficient version without unit compatibility checks
+
+  type Scalar = Real
+  type Real = Double
+
+  // the following 3 lines taken from types._ so this file does not depend on it
+
+  private type Bool = Boolean // shorter name for Boolean
+  private type Text = String // better name for String
+
+  private def Text(x: Any) = x.toString
+
+  def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
+  def Long(s: Scalar) = s.toLong // ditto
+  def Real(s: Scalar) = s.toDouble // ditto
+
+  val zero = 0.0
+  val one = 1.0
+
+  implicit def ListI1(list: List[Int]) = list map (_.toDouble)
+  implicit def ListI2(list: List[List[Int]]) = list map (ListI1(_))
+
+  implicit def VectorI1(vec: Vector[Int]) = vec map (_.toDouble)
+  implicit def VectorI2(vec: Vector[Vector[Int]]) = vec map (VectorI1(_))
+
+  def abs(s: Real): Real = math.abs(s)
+  def pow(s: Real, e: Real): Real = math.pow(s, e)
+  def sqrt(s: Real): Real = math.sqrt(s)
+  def signum(s: Real): Real = math.signum(s)
+  def atan2(y: Real, x: Real): Real = math.atan2(y, x)
+
+  def sin(x: Real): Real = math.sin(x)
+  def cos(x: Real): Real = math.cos(x)
+  def tan(x: Real): Real = math.tan(x)
+
+  def asin(x: Scalar): Scalar = math.asin(Real(x))
+  def acos(x: Scalar): Scalar = math.acos(Real(x))
+  def atan(x: Scalar): Scalar = math.atan(Real(x))
+
+  private var convertTo = Map[Text, Real]() // output conversion factors
+  private var nameToUnitMap = Map[Text, Real]() // map of names to units
+
+  def nameToUnit(name: Text) = nameToUnitMap(name)
+
+  def output_units(names: Text*) =
+    println("WARNING: output_units specified with Scalar class off")
+
+  def format(numx: Real, uname: Text, fmt: Text=""): Text = {
+
+    if (uname == "") // no unit name given
+      return if (fmt == "") Text(numx) else fmt.format(numx)
+
+    val num = numx * convertTo(uname)
+
+    val out = if (fmt != "") fmt.format(num) else
+      if (num % 1 == 0) Text(num.toInt) else Text(num)
+
+    out + " " + uname
+    }
+
+  def form(numx: Real, unit: Scalar, fmt: Text=""): Text = {
+
+    val num = Real(numx/unit)
+
+    if (fmt != "") fmt.format(num) else
+    if (num % 1 == 0) Text(num.toInt) else
+    Text(num)
+    }
+
+  def base_unit(name: Text="", x: Text="", y: Text=""):
+    Real = { // new base unit
+
+    convertTo += name -> 1
+    nameToUnitMap += name -> 1
+    1
+    }
+
+  def unit(name: Text, equiv: Real, x: Text="", y: Text=""):
+    Real = { // new derived unit
+
+    convertTo += name -> 1/equiv
+    nameToUnitMap += name -> equiv
+    equiv
+    }
+
+  def utype(x: Real): Text = "unknown (Scalar class off for efficiency)"
+  def unitList(): Text = "no units (Scalar class off for efficiency)"
+
+  //implicit def ScalarToScalar1(x: Scalar) = new Scalar1(x)
+  implicit def RealToScalar1(x: Real) = new Scalar1(x)
+  implicit def RealToScalar2(x: Real) = new Scalar2(x)
+  implicit def IntToScalar1(x: Int) = new Scalar1(x)
+  implicit def IntToScalar2(x: Int) = new Scalar2(x)
+
+  implicit def TextToText1(s: Text) = new Text1(s)
+
+  def Vectr(reals: Real*): Vectrx = Vectrx(Vector(reals:_*))
+  }
+
+package scalar_ {
+
+  class Scalar1(val scalar: Scalar) { // for "scalar * vector" multiplication
+    def * (vector: Vector[Scalar]): Vector[Scalar] = vector * scalar
+    }
+
+  class Scalar2(val scalar: Scalar) { // for "scalar * vector" multiplication
+    def * (vector: Vector[Int]): Vector[Scalar] = VectorI1(vector) * scalar
+    }
+
+  class Text1(val s: String) {
+    def form(args: Any*) = s.format(args: _*)
+    }
+  }
