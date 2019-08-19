@@ -254,9 +254,12 @@ package object scalar_ { // inefficient version with unit compatibility checks
 
   val err1 = "WARNING: trig arg should be scalar (use rad or deg)\n"
 
-  def sin(x: Real): Real = { throw new RuntimeException(err1); math.sin(x) }
-  def cos(x: Real): Real = { throw new RuntimeException(err1); math.cos(x) }
-  def tan(x: Real): Real = { throw new RuntimeException(err1); math.tan(x) }
+  // The following 3 lines may cause a warning, but they force
+  // the user to specify radians or degrees to avoid errors.
+  
+  def sin(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
+  def cos(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
+  def tan(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
 
   def sin(x: Scalar): Real = math.sin(Real(x))
   def cos(x: Scalar): Real = math.cos(Real(x))
