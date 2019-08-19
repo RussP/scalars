@@ -3,8 +3,8 @@ package object mathx_ { // various math functions for Scalars
 
   import scalar_._
   private type Real = Double
-  implicit val order = Ordering.Double.TotalOrdering
-  //implicit val order = Ordering.Double.IeeeOrdering
+  implicit val order = Ordering.Double.IeeeOrdering
+  //implicit val order = Ordering.Double.TotalOrdering
 
   val Pi = math.Pi
   val TwoPi = 2 * Pi
