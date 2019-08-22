@@ -58,14 +58,11 @@ package object mathx_ { // various math functions for Scalars
 
   def nearAngMult(angle: Scalar, step: Scalar): Scalar = {
     // nearest multiple of an angular step
-
     val ang = if (angle < 0) angle + TwoPi else angle
-
     Int(ang / step + 0.5) * step
     }
 
   def nearMult(x: Scalar, y: Scalar=1): Scalar = // nearest multiple
-
     Int(x / y + (if (x > 0) 0.5 else -.5)) * y
 
   def nearMultDif(x: Scalar, y: Scalar) = x - nearMult(x, y)
@@ -74,7 +71,6 @@ package object mathx_ { // various math functions for Scalars
   def prevMult(t: Scalar, dt: Scalar): Scalar = Int(t/dt) * dt
 
   def rss(args: List[Scalar]): Scalar = // root sum square
-
     sqrt(args.foldLeft(zero)(_ + sqr(_)))
 
   def rss(args: Scalar*): Scalar = rss(args.toList) // root sum square
