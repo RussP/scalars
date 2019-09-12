@@ -25,13 +25,14 @@ object Plot {
     val length1 = if (length > 0) length else 1.0
     val exp = Int(log10(length1)+1000)-1000
     val scale = pow(10, exp)
-    val mant = length1 / scale
+    val mant = length1 / scale // mantissa
 
     if (mant > 8) (2 * scale, 1) else
-    if (mant > 4) (1 * scale, 1) else
-    if (mant > 2.2) (0.5 * scale, 0) else
-    if (mant > 1.5) (0.5 * scale, 4) else
-    (0.2 * scale, 1)
+    if (mant > 4) (1 * scale, 0) else
+    if (mant > 1.8) (0.5 * scale, 0) else
+    //if (mant > 1.5) (0.5 * scale, 4) else
+    (0.2 * scale, 0)
+    //printlnx("\nPlot.scala", length, exp, scale, mant, xx); stop
     }
   }
 
@@ -46,9 +47,6 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
   protected var xmax = -1e20
   protected var ymin =  1e20
   protected var ymax = -1e20
-
-  protected var xRangeSet = false
-  protected var yRangeSet = false
 
   protected var targets = Set[Int](10) // target (curve) numbers in use
 
@@ -151,7 +149,6 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       }
 
     if (fmt.nonEmpty) printlnx(fmt.form(xval, yval)) else
-
     printlnx(xval, yval)
     }
 
@@ -163,15 +160,15 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     addPoint(p.x, p.y)(fmt, rescale)
 
   def plot1point(p: Vector[Scalar], symbol: Text="+", size: Real=1,
-      color: Text="black") = {
+      color: Text="black", rescale: Bool=true) = {
     target(symbol=symbol, size=size, color=color)
-    point(p)
+    point(p)(rescale=rescale)
     }
 
   def plot1Point(x: Scalar=0, y: Scalar=0, symbol: Text="+", size: Real=1,
-      color: Text="black") = {
+      color: Text="black", rescale: Bool=true) = {
     target(symbol=symbol, size=size, color=color)
-    Point(x, y)
+    Point(x, y)(rescale=rescale)
     }
 
   def lineCode(style: Text): Int = {
@@ -209,58 +206,41 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     colorCode.getOrElse(color, 1)
     }
 
-  def setxmin(xmin: Scalar) = {
-    xRangeSet = true
-    this.xmin = xmap(xmin)
-    printlnx("\n@world xmin ", this.xmin)
+  def setxmin(x: Scalar) = { xmin = xmap(x) }
+  def setxmax(x: Scalar) = { xmax = xmap(x) }
+  def setymin(y: Scalar) = { ymin = ymap(y) }
+  def setymax(y: Scalar) = { ymax = ymap(y) }
+
+  def setxRange(x0: Scalar, x1: Scalar) = {
+    setxmin(x0)
+    setxmax(x1)
     }
 
-  def setxmax(xmax: Scalar) = {
-    xRangeSet = true
-    this.xmax = xmap(xmax)
-    printlnx("\n@world xmax ", this.xmax)
+  def setyRange(y0: Scalar, y1: Scalar) = {
+    setymin(y0)
+    setymax(y1)
     }
 
-  def setymin(ymin: Scalar) = {
-    yRangeSet = true
-    this.ymin = ymap(ymin)
-    printlnx("\n@world ymin ", this.ymin)
+  def setAxisRanges(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar) = {
+    setxmin(x0)
+    setxmax(x1)
+    setymin(y0)
+    setymax(y1)
     }
 
-  def setymax(ymax: Scalar) = {
-    yRangeSet = true
-    this.ymax = ymap(ymax)
-    printlnx("\n@world ymax ", this.ymax)
+  def setxMargins(x0: Scalar=0, x1: Scalar=0) = {
+    xmin -= x0 / xunit
+    xmax += x1 / xunit
     }
 
-  def setxRange(xmin: Scalar, xmax: Scalar) = {
-    xRangeSet = true
-    setxmin(xmin)
-    setxmax(xmax)
+  def setyMargins(y0: Scalar=0, y1: Scalar=0) = {
+    ymin -= y0 / yunit
+    ymax += y1 / yunit
     }
 
-  def setyRange(ymin: Scalar, ymax: Scalar) = {
-    yRangeSet = true
-    setymin(ymin)
-    setymax(ymax)
-    }
-
-  def setAxisRanges(xmin: Scalar, ymin: Scalar, xmax: Scalar, ymax: Scalar) = {
-
-    setxmin(xmin)
-    setxmax(xmax)
-    setymin(ymin)
-    setymax(ymax)
-    }
-
-  def setMargins(xpad: Scalar=0, ypad: Scalar=0) = {
-
-    printlnx("\n@autoscale onread none")
-    printlnx("@world xmin ", xmin - xpad/xunit)
-    printlnx("@world xmax ", xmax + xpad/xunit)
-    printlnx("@world ymin ", ymin - ypad/yunit)
-    printlnx("@world ymax ", ymax + ypad/yunit)
-    printlnx("@autoticks")
+  def setMargins(x: Scalar=0, y: Scalar=0) = {
+    setxMargins(x, x)
+    setyMargins(y, y)
     }
 
   def addGrid() = {
@@ -482,9 +462,12 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     if (xmin > xmax || ymin > ymax) plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
-    if (xRangeSet && yRangeSet) println("\n@autoscale onread none") else
-    if (xRangeSet) println("\n@autoscale onread yaxes") else
-    if (yRangeSet) println("\n@autoscale onread xaxes")
+    printlnx("\n@autoscale onread none")
+    printlnx("@world xmin ", xmin)
+    printlnx("@world xmax ", xmax)
+    printlnx("@world ymin ", ymin)
+    printlnx("@world ymax ", ymax)
+    printlnx("@autoticks")
 
     for (o <- objects if inFrame(o.pos)) println(o.txt)
     if (not(ticksSet)) setTicks
