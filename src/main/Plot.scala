@@ -229,13 +229,13 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     }
 
   def setxMargins(x0: Scalar=0, x1: Scalar=0) = {
-    xmin -= x0 / xunit
-    xmax += x1 / xunit
+    xmin -= Real(x0/xunit)
+    xmax += Real(x1/xunit)
     }
 
   def setyMargins(y0: Scalar=0, y1: Scalar=0) = {
-    ymin -= y0 / yunit
-    ymax += y1 / yunit
+    ymin -= Real(y0/yunit)
+    ymax += Real(y1/yunit)
     }
 
   def setMargins(x: Scalar=0, y: Scalar=0) = {
