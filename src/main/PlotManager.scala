@@ -12,35 +12,34 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
   val run = Runtime.getRuntime
 
   val testDir = new File(dir)
-  val outFile = new File(dir, s"$name.tex")
+  val texFile = new File(dir, s"$name.tex")
 
   if (startClean) cleanup() // clean out old or unneeded files
 
-  val out = new PrintWriter(outFile)
+  val out = new PrintWriter(texFile)
 
   private def cleanup(numFiles: Int=2) = {
 
-    removeFiles(".ps")
-    removeFiles(".tex")
-    removeFiles(".log")
-    removeFiles(".aux")
-    removeFiles(".pdf")
+    def delete1(txt: Text) = new File(dir, name + txt).delete
 
-    if (numFiles > 1) removeFiles(".dat")
+    delete1(".aux") // delete file created by latex
+    delete1(".log") // ditto
+    delete1(".tex") // ditto
+
+    deleteFiles(".ps") // delete in termediate postscript files
+    deleteFiles(".pdf") // delete individual pdf files for each plot
+    if (numFiles > 1) deleteFiles(".dat")
+    ()
     }
 
-  private def removeFiles(txt: Text) = {
+  private def deleteFiles(ext: Text) = {
 
     val filter = new FilenameFilter {
-      override def accept(dir: File, file: String) = {
-        file.startsWith(name) && (file.endsWith(txt)) && file != s"$name.pdf"
-        }
+      override def accept(dir: File, file: String) =
+        file.startsWith(name) && (file.endsWith(ext)) && file != s"$name.pdf"
       }
 
-    val files = testDir.listFiles(filter).mkString(" ")
-
-    run.exec(s"rm -f $files").waitFor // use File.delete instead?
-    ()
+    for (file <- testDir.listFiles(filter)) file.delete
     }
 
   def combinePlots(display: Bool=true, save: Bool=false): Unit = {
@@ -91,7 +90,6 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
   def displayPlots() = {
     val runningLocally = System.getenv("SSH_CLIENT") == null
     if (runningLocally) run.exec(s"acroread $name.pdf")
-    ()
     }
 
   private def printLatexHeader() = {
@@ -114,7 +112,7 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
     out.println("\\begin{document}\n")
     }
 
-  def replaceAtEnd(txt: Text, ext1: Text, ext2: Text): Text =
+  private def replaceAtEnd(txt: Text, ext1: Text, ext2: Text): Text =
     // used to change file name extension
     if (not(txt.endsWith(ext1))) txt else
       txt.substring(0, txt.length - ext1.length) + ext2
