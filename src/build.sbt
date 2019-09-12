@@ -1,5 +1,5 @@
 name := "physical-scalar"
-version := "4.1"
+version := "4.2"
 scalaVersion := "2.13.0"
 organization := "gov.nasa.arc"
 
