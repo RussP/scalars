@@ -7,6 +7,7 @@ program obtained from "http://plasma-gate.weizmann.ac.il/Grace"
 package tools_
 
 import types_._
+import mathx_._
 import scalar_._
 import Vectorx._
 
@@ -40,7 +41,8 @@ protected case class Objectx(pos: Vector[Scalar], txt: Text) // for geometric ob
 
 class Plot(fileName: Text, title: Text="", subtitle: Text="",
     xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
-    xref: Scalar=0, grid: Bool=false)
+    xref: Scalar=0, yref: Scalar=0, xMargin: Scalar=0, rightMargin: Scalar=0,
+    yMargin: Scalar=0, topMargin: Scalar=0, grid: Bool=false)
   extends PrintWriter(fileName) {
 
   protected var xmin =  1e20
@@ -109,18 +111,19 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     printlnx("@target", "g0.s" + target1 + "\n")
     }
 
-  def xmap(x: Scalar) = Real((x - xref) / xunit)
-  def ymap(y: Scalar) = Real(y / yunit)
+  protected def xmap(x: Scalar) = Real((x - xref) / xunit)
+  protected def ymap(y: Scalar) = Real((y - yref) / yunit)
+
+  protected def xmapinv(x: Real) = x * xunit + xref
+  protected def ymapinv(y: Real) = y * yunit + yref
 
   def inFrame(v: Vector[Scalar]): Bool = inFrame(v.x, v.y)
 
   def inFrame(x: Scalar, y: Scalar): Bool = {
-
     if (xmap(x) < xmin) false else
     if (xmap(x) > xmax) false else
     if (ymap(y) < ymin) false else
     if (ymap(y) > ymax) false else
-
     true
     }
 
@@ -228,20 +231,15 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     setymax(y1)
     }
 
-  def setxMargins(x0: Scalar=0, x1: Scalar=0) = {
-    xmin -= Real(x0/xunit)
-    xmax += Real(x1/xunit)
+  def copyAxisRangesFrom(that: Plot): Plot = {
+    setxmin(that.xmapinv(that.xmin))
+    setxmax(that.xmapinv(that.xmax))
+    setymin(that.ymapinv(that.ymin))
+    setymax(that.ymapinv(that.ymax))
+    this
     }
 
-  def setyMargins(y0: Scalar=0, y1: Scalar=0) = {
-    ymin -= Real(y0/yunit)
-    ymax += Real(y1/yunit)
-    }
-
-  def setMargins(x: Scalar=0, y: Scalar=0) = {
-    setxMargins(x, x)
-    setyMargins(y, y)
-    }
+  def axisRanges = (xmapinv(xmin), ymapinv(ymin), xmapinv(xmax), ymapinv(ymax))
 
   def addGrid() = {
 
@@ -303,9 +301,6 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     var xdif = xmax - xmin
     var ydif = ymax - ymin
 
-    if (xdif == 0) xdif = 1
-    if (ydif == 0) ydif = 1
-
     val xmid = (xmin + xmax) / 2
     val ymid = (ymin + ymax) / 2
 
@@ -320,24 +315,10 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       xmax = xmin + xdif
       }
 
-    xmin -= xdif / 20
-    ymin -= xdif / 32
-    xmax += xdif / 20
-    ymax += xdif / 32
-
     this.xmin = xmin
     this.xmax = xmax
     this.ymin = ymin
     this.ymax = ymax
-
-    val txt = "\n@autoscale onread none\n" +
-      s"@world xmin $xmin\n" +
-      s"@world xmax $xmax\n" +
-      s"@world ymin $ymin\n" +
-      s"@world ymax $ymax\n" +
-      "@autoticks\n"
-
-    println(txt)
     }
 
   def line1( // draw a line
@@ -463,10 +444,10 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
     printlnx("\n@autoscale onread none")
-    printlnx("@world xmin ", xmin)
-    printlnx("@world xmax ", xmax)
-    printlnx("@world ymin ", ymin)
-    printlnx("@world ymax ", ymax)
+    printlnx("@world xmin ", xmin - xMargin / xunit)
+    printlnx("@world xmax ", xmax + max(xMargin, rightMargin) / xunit)
+    printlnx("@world ymin ", ymin - yMargin / yunit)
+    printlnx("@world ymax ", ymax + max(yMargin, topMargin) / yunit)
     printlnx("@autoticks")
 
     for (o <- objects if inFrame(o.pos)) println(o.txt)
