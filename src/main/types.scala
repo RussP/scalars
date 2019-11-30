@@ -28,18 +28,18 @@ package object types_ { // type aliases, conversions, and other useful stuff
   type VList[T] = Vector[T] // another name for Vector
   def VList[T](x: T*) = Vector[T](x: _*)
 
-  def enter( // prompt user to enter input
+  def enter( // prompt user for input
       label: Text = "", // label for requested input
-      default: Text = ""): // default value to return if nothing entered
+      default: Text = ""): // default value if nothing entered
     Text = {
 
-    print("enter " + label + " [" + default + "]: ")
+    print(s"enter $label [$default]: ")
     val entry = scala.io.StdIn.readLine
     if (entry == "") default else entry
     }
 
   def stop() = { // breakpoint for debugging
-    print("\nhit <enter> to continue ")
+    print("\npress <enter> to continue ")
     scala.io.StdIn.readLine
     ()
     }
@@ -73,6 +73,8 @@ package object types_ { // type aliases, conversions, and other useful stuff
     proc.redirectError(INHERIT)
     proc.start
     }
+
+  def printStackTrace = new Exception().printStackTrace
 
   lazy val ncores = Runtime.getRuntime().availableProcessors()
   def printNumCores() = println(s"\n$ncores processor cores available")
