@@ -102,8 +102,7 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
 
   def displayPlots() = {
     val runningLocally = System.getenv("SSH_CLIENT") == null
-    if (runningLocally) Process(s"acroread $name.pdf").!
-    //if (runningLocally) Runtime.getRuntime.exec(s"acroread $name.pdf")
+    if (runningLocally) Runtime.getRuntime.exec(s"acroread $name.pdf")
     }
 
   private def printLatexHeader(title: Text, author: Text, intro: Text,
