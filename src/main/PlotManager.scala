@@ -51,7 +51,7 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
     showDate: Bool=false, margin: Text="1in", parsep: Text="0.3in",
     display: Bool=true, save: Bool=false): Unit = {
 
-    val utag = "-utag1zqp" // unique tag to avoid name clash
+    val utag = "-utag1zqp937" // unique tag to avoid name clash
 
     val fileNames = {
 
@@ -78,8 +78,8 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
     printLatexHeader(title, author, intro, showDate, margin, parsep)
 
     for (fileName <- fileNames) if (fileName.count(_ == '.') > 1)
-      // pdflatex will choke on file name if it has more than one .
-      throw new RuntimeException(s"\n$fileName has more than one period\n")
+      // pdflatex will choke on file name if it has more than one "dot" (".")
+      throw new RuntimeException(s"\n$fileName has more than one dot\n")
 
     for (fileName <- fileNames) out.println(s"\\plot{$fileName}")
     out.println("\n\\end{document}")
@@ -92,12 +92,17 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
       Process(s"ps2pdf $psFile").!
       }
 
+    val out1 = System.out
+    if (not(save)) System.setOut(new PrintStream(nullFile))
+
     Process(s"pdflatex $name").!
 
     if (display) displayPlots
 
-    if (save) deleteFiles(".ps") else // save all intermediate files except .ps
-    cleanup(fileNames.length) // delete all but the final pdf output file
+    if (save) deleteFiles(".ps") else { // save all temp files except .ps
+      cleanup(fileNames.length) // delete all but the final pdf output file
+      System.setOut(out1) // reset standard output
+      }
     }
 
   def displayPlots() = {
