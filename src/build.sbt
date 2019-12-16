@@ -1,6 +1,6 @@
 name := "physical-scalar"
-version := "4.3.1"
-scalaVersion := "2.13.0"
+version := "4.4"
+scalaVersion := "2.13.1"
 organization := "gov.nasa.arc"
 
 crossPaths := false
