@@ -74,7 +74,6 @@ package object mathx_ { // various math functions for Scalars
     sqrt(args.foldLeft(zero)(_ + sqr(_)))
 
   def rss(args: Scalar*): Scalar = rss(args.toList) // root sum square
-  def rms(args: Scalar*): Scalar = sqrt(rss(args.toList)) // root mean square
   def sqr(s: Scalar): Scalar = s * s
   def cube(s: Scalar): Scalar = s * s * s
   def hypot(x: Scalar, y: Scalar): Scalar = sqrt((x*x)+(y*y))
