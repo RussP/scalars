@@ -14,46 +14,21 @@ import Vectorx._
 import java.io.PrintWriter
 import scala.language.reflectiveCalls
 
-object Plot {
-
-  case class TargetStyle(lineStyle: Text="solid", lineWidth: Real=1,
-      symbol: Text="", size: Real=0.5, color: Text="black", legend: Text="")
-
-  def setTicks(length: Real): (Real, Int) = {
-
-    import math._
-
-    val length1 = if (length > 0) length else 1.0
-    val exp = Int(log10(length1)+1000)-1000
-    val scale = pow(10, exp)
-    val mant = length1 / scale // mantissa
-
-    if (mant > 8) (2 * scale, 1) else
-    if (mant > 4) (1 * scale, 0) else
-    if (mant > 1.8) (0.5 * scale, 0) else
-    //if (mant > 1.5) (0.5 * scale, 4) else
-    (0.2 * scale, 0)
-    //printlnx("\nPlot.scala", length, exp, scale, mant, xx); stop
-    }
-  }
-
-protected case class Objectx(pos: Vector[Scalar], txt: Text) // for geometric objects/text
-
 class Plot(fileName: Text, title: Text="", subtitle: Text="",
-    xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
-    xref: Scalar=0, yref: Scalar=0, xMargin: Scalar=0, rightMargin: Scalar=0,
-    yMargin: Scalar=0, topMargin: Scalar=0, grid: Bool=false)
-  extends PrintWriter(fileName) {
+  xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
+  xref: Scalar=0, yref: Scalar=0, xMargin: Scalar=0, rightMargin: Scalar=0,
+  yMargin: Scalar=0, topMargin: Scalar=0, equalAxes: Bool=false,
+  grid: Bool=false) extends PrintWriter(fileName) {
+
+  protected case class Objectx(pos: Vector[Scalar], txt: Text)
+  protected var targets = Set[Int](10) // target (curve) numbers in use
+  protected var objects = List[Objectx]() // geometric and text objects
+  protected var ticksSet = false
 
   protected var xmin =  1e20
   protected var xmax = -1e20
   protected var ymin =  1e20
   protected var ymax = -1e20
-
-  protected var targets = Set[Int](10) // target (curve) numbers in use
-
-  protected var objects = List[Objectx]() // geometric and text objects
-  protected var ticksSet = false
 
   if (grid) addGrid
 
@@ -288,7 +263,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     ticksSet = true
     }
 
-  def setAxisScalesEqual(): Unit = {
+  private def setAxisScalesEqual(): Unit = {
 
     var xmin = this.xmin
     var xmax = this.xmax
@@ -443,16 +418,46 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     if (xmin > xmax || ymin > ymax) plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
+    xmin -= xMargin / xunit
+    xmax += max(xMargin, rightMargin) / xunit
+    ymin -= yMargin / yunit
+    ymax += max(yMargin, topMargin) / yunit
+
+    if (equalAxes) setAxisScalesEqual
+
     printlnx("\n@autoscale onread none")
-    printlnx("@world xmin ", xmin - xMargin / xunit)
-    printlnx("@world xmax ", xmax + max(xMargin, rightMargin) / xunit)
-    printlnx("@world ymin ", ymin - yMargin / yunit)
-    printlnx("@world ymax ", ymax + max(yMargin, topMargin) / yunit)
+    printlnx("@world xmin ", xmin)
+    printlnx("@world xmax ", xmax)
+    printlnx("@world ymin ", ymin)
+    printlnx("@world ymax ", ymax)
     printlnx("@autoticks")
 
     for (o <- objects if inFrame(o.pos)) println(o.txt)
     if (not(ticksSet)) setTicks
 
     super.close
+    }
+  }
+
+object Plot {
+
+  case class TargetStyle(lineStyle: Text="solid", lineWidth: Real=1,
+      symbol: Text="", size: Real=0.5, color: Text="black", legend: Text="")
+
+  def setTicks(length: Real): (Real, Int) = {
+
+    import math._
+
+    val length1 = if (length > 0) length else 1.0
+    val exp = Int(log10(length1)+1000)-1000
+    val scale = pow(10, exp)
+    val mant = length1 / scale // mantissa
+
+    if (mant > 8) (2 * scale, 1) else
+    if (mant > 4) (1 * scale, 0) else
+    if (mant > 1.8) (0.5 * scale, 0) else
+    //if (mant > 1.5) (0.5 * scale, 4) else
+    (0.2 * scale, 0)
+    //printlnx("\nPlot.scala", length, exp, scale, mant, xx); stop
     }
   }
