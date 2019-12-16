@@ -418,10 +418,10 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     if (xmin > xmax || ymin > ymax) plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
-    xmin -= xMargin / xunit
-    xmax += max(xMargin, rightMargin) / xunit
-    ymin -= yMargin / yunit
-    ymax += max(yMargin, topMargin) / yunit
+    xmin -= Real(xMargin / xunit)
+    xmax += Real(max(xMargin, rightMargin) / xunit)
+    ymin -= Real(yMargin / yunit)
+    ymax += Real(max(yMargin, topMargin) / yunit)
 
     if (equalAxes) setAxisScalesEqual
 
