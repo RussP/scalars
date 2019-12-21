@@ -17,8 +17,9 @@ import scala.language.reflectiveCalls
 class Plot(fileName: Text, title: Text="", subtitle: Text="",
   xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
   xref: Scalar=0, yref: Scalar=0, xMargin: Scalar=0, rightMargin: Scalar=0,
-  yMargin: Scalar=0, topMargin: Scalar=0, equalAxes: Bool=false,
-  grid: Bool=false) extends PrintWriter(fileName) {
+  yMargin: Scalar=0, topMargin: Scalar=0, grid: Bool=false,
+  equalAxes: Bool=false, copyAxes: Option[Plot]=None)
+  extends PrintWriter(fileName) {
 
   protected case class Objectx(pos: Vector[Scalar], txt: Text)
   protected var targets = Set[Int](10) // target (curve) numbers in use
@@ -206,7 +207,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     setymax(y1)
     }
 
-  def copyAxisRangesFrom(that: Plot): Plot = {
+  private def copyAxesFrom(that: Plot): Plot = {
     setxmin(that.xmapinv(that.xmin))
     setxmax(that.xmapinv(that.xmax))
     setymin(that.ymapinv(that.ymin))
@@ -299,12 +300,12 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
   def line1( // draw a line
     p0: { val x: Scalar; val y: Scalar },
     p1: { val x: Scalar; val y: Scalar },
-    style: Text="solid", color: Text="black", width: Real=1,
-    arrow: Int=0, arrowtype: Int=1, arrowlength: Real=2, label: Text="") = {
+    style: Text="solid", color: Text="black", width: Real=1, arrow: Int=0,
+    arrowtype: Int=1, arrowlength: Real=2, label: Text="") = {
 
     line(p0.x, p0.y, p1.x, p1.y, style=style, color=color,
-    width=width, arrow=arrow, arrowtype=arrowtype,
-    arrowlength=arrowlength, label=label)
+      width=width, arrow=arrow, arrowtype=arrowtype,
+      arrowlength=arrowlength, label=label)
     }
 
   def line(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar,
@@ -337,6 +338,25 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
     objects :+= Objectx(Vector(x0, y0), Text(txt))
     }
+
+  def arrow(x0: Scalar, y0: Scalar, dir: Scalar, color: Text="black", 
+    width: Real=1, arrow: Int=1, arrowtype: Int=1, arrowlength: Real=2) = {
+    // add an arrow at specified position and direction (uses very short line)
+
+    val eps = 1e-4 * xunit
+    val x1 = x0 - eps * sin(dir) // dir is clockwise from north
+    val y1 = y0 - eps * cos(dir)
+
+    line(x0, y0, x1, y1, color=color, width=width, arrow=arrow,
+        arrowtype=arrowtype, arrowlength=arrowlength)
+    }
+
+  def arrow1(
+    pos: { val x: Scalar; val y: Scalar }, dir: Scalar, color: Text="black", 
+    width: Real=1, arrow1: Int=1, arrowtype: Int=1, arrowlength: Real=2) =
+    // add an arrow at specified position and direction (uses very short line)
+    arrow(pos.x, pos.y, dir, color=color, width=width, arrow=arrow1,
+        arrowtype=arrowtype, arrowlength=arrowlength)
 
   def circle(xc: Scalar, yc: Scalar, radius: Scalar,
     style: Text="solid", color: Text="black") = { // draw a circle
@@ -418,12 +438,15 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     if (xmin > xmax || ymin > ymax) plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
-    xmin -= Real(xMargin / xunit)
-    xmax += Real(max(xMargin, rightMargin) / xunit)
-    ymin -= Real(yMargin / yunit)
-    ymax += Real(max(yMargin, topMargin) / yunit)
+    if (copyAxes.nonEmpty) copyAxesFrom(copyAxes.get) else {
 
-    if (equalAxes) setAxisScalesEqual
+      xmin -= Real(xMargin / xunit)
+      xmax += Real(max(xMargin, rightMargin) / xunit)
+      ymin -= Real(yMargin / yunit)
+      ymax += Real(max(yMargin, topMargin) / yunit)
+
+      if (equalAxes) setAxisScalesEqual
+      }
 
     printlnx("\n@autoscale onread none")
     printlnx("@world xmin ", xmin)
