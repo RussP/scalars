@@ -336,7 +336,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
     if (label.nonEmpty) { } // to be added
 
-    objects :+= Objectx(Vector(x0, y0), Text(txt))
+    objects :+= Objectx(Vector(x0, y0), txt)
     }
 
   def arrow(x0: Scalar, y0: Scalar, dir: Scalar, color: Text="black", 
@@ -358,6 +358,29 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     arrow(pos.x, pos.y, dir, color=color, width=width, arrow=arrow1,
         arrowtype=arrowtype, arrowlength=arrowlength)
 
+  def box(x1: Scalar, y1: Scalar, x2: Scalar, y2: Scalar,
+    lineStyle: Text="solid", lineWidth: Real=1.0, color: Text="black",
+    pattern: Int=0) = { // draw a rectangle (pattern > 1 = filled rectangle)
+
+    val txt = "\n@with box\n" +
+      "@box on\n" +
+      "@box loctype world\n" +
+      "@box g0\n" +
+      "@box " +
+      fmt.form(xmap(x1)) + ", " +
+      fmt.form(ymap(y1)) + ", " +
+      fmt.form(xmap(x2)) + ", " +
+      fmt.form(ymap(y2)) + "\n" +
+      s"@box linestyle ${lineCode(lineStyle)}\n" +
+      s"@box linewidth $lineWidth\n" +
+      s"@box color ${colorCode(color)}\n" +
+      s"@box fill color ${colorCode(color)}\n" +
+      s"@box fill pattern $pattern\n" +
+      s"@box def\n"
+
+    objects :+= Objectx(Vector(x1, y1), txt)
+    }
+
   def circle(xc: Scalar, yc: Scalar, radius: Scalar,
     style: Text="solid", color: Text="black") = { // draw a circle
 
@@ -366,27 +389,24 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       "@ellipse loctype world\n" +
       "@ellipse g0\n" +
       "@ellipse " +
-      fmt.form(xmap(xc - radius)) + "," +
-      fmt.form(ymap(yc - radius)) + "," +
-      fmt.form(xmap(xc + radius)) + "," +
+      fmt.form(xmap(xc - radius)) + ", " +
+      fmt.form(ymap(yc - radius)) + ", " +
+      fmt.form(xmap(xc + radius)) + ", " +
       fmt.form(ymap(yc + radius)) + "\n" +
       s"@ellipse linestyle ${lineCode(style)}\n" +
       s"@ellipse color ${colorCode(color)}\n" +
       s"@ellipse def\n"
 
-    objects :+= Objectx(Vector(xc, yc), Text(txt))
+    objects :+= Objectx(Vector(xc, yc), txt)
     }
 
   def circle1(center: { val x: Scalar; val y: Scalar }, radius: Scalar,
-      style: Text="solid", color: Text="black") = // draw a circle
-    circle(center.x, center.y, radius)
+    style: Text="solid", color: Text="black") = // draw a circle
+    circle(center.x, center.y, radius, style=style, color=color)
 
-  def text1(txt: Text, p: { val x: Scalar; val y: Scalar },
-    color: Text="black", loctype: Text="world", size: Real=1,
-    just: Int=0) = {
-
+  def text1(txt: Text, p: { val x: Scalar; val y: Scalar }, color: Text="black",
+    loctype: Text="world", size: Real=1, just: Int=0) = // print text on plot
     text(txt, p.x, p.y, color=color, loctype=loctype, size=size, just=just)
-    }
 
   def text(text: Text, x: Scalar=0, y: Scalar=0, color: Text="black",
     loctype: Text="world", size: Real=1, just: Int=0,
@@ -408,7 +428,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
     if (outOfFrame) println(txt) else
 
-    objects :+= Objectx(Vector(x, y), Text(txt))
+    objects :+= Objectx(Vector(x, y), txt)
     }
 
   def legend(x: Real=0.2, y: Real=0.8, charsize: Real=0.8) = {
