@@ -6,6 +6,8 @@ vector addition and other basic operations on algebraic vectors
 
 package scalar_
 
+import scala.language.implicitConversions
+
 object Vectorx {
 
 implicit class Vectrx(self: Vector[Scalar]) {
