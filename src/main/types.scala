@@ -25,13 +25,13 @@ package object types_ { // type aliases, conversions, and other useful stuff
   def TextBuilder(t: Text="") = new StringBuilder(t) // better name!
   implicit def StringBuilderToText(t: StringBuilder) = Text(t)
 
-  type VList[T] = Vector[T] // another name for Vector
-  def VList[T](x: T*) = Vector[T](x: _*)
+  type Vec[T] = Vector[T] // shorter name for Vector
+  def Vec[T](x: T*) = Vector[T](x: _*)
 
   def enter( // prompt user for input
-      label: Text = "", // label for requested input
-      default: Text = ""): // default value if nothing entered
-    Text = {
+    label: Text = "", // label for requested input
+    default: Text = "" // default value if nothing entered
+    ): Text = {
 
     print(s"enter $label [$default]: ")
     val entry = scala.io.StdIn.readLine
@@ -57,8 +57,8 @@ package object types_ { // type aliases, conversions, and other useful stuff
     .getLines.map(_.trim).filter(_.nonEmpty).toVector
     .filterNot(_.startsWith("#")).filterNot(_.startsWith("%"))
 
-  def splitLine(line: Text) = line.trim.split(" *[ ,] *")
-  def recordFromLine(line: Text) = splitLine(line).toVector
+  def splitLine(line: Text) = line.trim.split(" *[ ,] *").toVector
+  def recordFromLine(line: Text) = splitLine(line)
 
   def recordsFromFile(fileName: Text) = dataLinesFromFile(fileName).
     map(recordFromLine(_))
