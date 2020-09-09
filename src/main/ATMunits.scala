@@ -41,7 +41,7 @@ package object ATMunits_ { // standard units for Air Traffic Management
     val atime = abs(time)
     val hr1 = Int(atime / hr)
     val min1 = Int((atime % hr) / Min)
-    val sec1 = atime % Min
+    val sec1 = (atime % Min) / sec
     val sign = if (time < 0) "-" else if (showPlus) "+" else ""
 
     if (hr1 == 0) "%s%d:%02.0f".form(sign, min1, sec1)
