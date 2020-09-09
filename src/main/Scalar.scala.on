@@ -21,12 +21,10 @@ package object scalar_ { // inefficient version with unit compatibility checks
     def this(s: Text) = this(Map[Text, Real](s -> 1))
     def this() = this(Map[Text, Real]())
 
-    override def equals(that: Any): Bool =
-
-      that match {
-        case that: Units => that.canEqual(this) && units == that.units
-        case _ => throw new RuntimeException(s"$this cannot = $that")
-        }
+    override def equals(that: Any): Bool = that match {
+      case that: Units => that.canEqual(this) && units == that.units
+      case _ => throw new RuntimeException(s"$this cannot = $that")
+      }
 
     def canEqual(that: Any): Bool = that.isInstanceOf[Units]
 
@@ -69,7 +67,6 @@ package object scalar_ { // inefficient version with unit compatibility checks
           }}
 
       if (ndenom > 1) txt ++= ")"
-
       txt
       }
 
@@ -90,7 +87,6 @@ package object scalar_ { // inefficient version with unit compatibility checks
       var units1 = units
 
       for (unit <- that.units.keys) {
-
         var exp = that.units(unit)
         if (units.contains(unit)) exp += units1(unit)
         units1 += unit -> exp
@@ -100,9 +96,7 @@ package object scalar_ { // inefficient version with unit compatibility checks
       }
 
     def / (that: Units): Units = that.inverse * this
-
     def pow(exp: Real) = Units(units.map(u => (u._1, exp * u._2)))
-
     def inverse = Units(units.map(u => (u._1, -u._2)))
     }
 
@@ -113,20 +107,14 @@ package object scalar_ { // inefficient version with unit compatibility checks
     def this(t: Text) = this(new Units(t))
     def this(s: Scalar) = this(s.num, s.units)
 
-    override def equals(that: Any): Bool = {
-
-      that match {
-
-        case that: Scalar => that.canEqual(this) && num == that.num &&
-          (num == 0 || units == that.units)
-
-        case that: Real  => this == Scalar(that)
-        case that: Float => this == Scalar(that)
-        case that: Int   => this == Scalar(that)
-        case that: Long  => this == Scalar(that)
-
-        case _ => throw new RuntimeException(s"$this cannot = $that")
-        }
+    override def equals(that: Any): Bool = that match {
+      case that: Scalar => that.canEqual(this) && num == that.num &&
+        (num == 0 || units == that.units)
+      case that: Real  => this == Scalar(that)
+      case that: Float => this == Scalar(that)
+      case that: Int   => this == Scalar(that)
+      case that: Long  => this == Scalar(that)
+      case _ => throw new RuntimeException(s"$this cannot = $that")
       }
 
     def canEqual(that: Any): Bool =
@@ -137,12 +125,9 @@ package object scalar_ { // inefficient version with unit compatibility checks
     def noUnits: Bool = units.isEmpty
 
     private def format1(fmt: Text=""): Text = {
-
       val out = if (fmt != "") fmt.format(num) else
         if (num % 1 == 0) Text(num.toInt) else Text(num)
-
-      if (num == 0 || noUnits) return out
-
+      if (num == 0 || noUnits) out else
       out + " " + units
       }
 
@@ -173,7 +158,6 @@ package object scalar_ { // inefficient version with unit compatibility checks
     def toLong = toDouble.toLong
 
     def checkUnits(that: Scalar): Bool = { // check for inconsistent units
-
       if (num == 0 || that.num == 0) true else
       units.checkUnits(that.units)
       }
@@ -206,11 +190,8 @@ package object scalar_ { // inefficient version with unit compatibility checks
       Scalar(num % that.num, units)
       }
 
-    def * (that: Scalar): Scalar =
-      Scalar(num * that.num, units * that.units)
-
-    def / (that: Scalar): Scalar =
-      Scalar(num / that.num, units / that.units)
+    def * (that: Scalar): Scalar = Scalar(num * that.num, units * that.units)
+    def / (that: Scalar): Scalar = Scalar(num / that.num, units / that.units)
 
     def * (x: Real): Scalar = Scalar(num * x, units)
     def / (x: Real): Scalar = Scalar(num / x, units)
@@ -302,9 +283,7 @@ package object scalar_ { // inefficient version with unit compatibility checks
   private var output_units_loaded = false
 
   def output_units(names: Text*) = {
-
     for (name <- names) output_unit_names ::= name
-
     output_units_loaded = false
     }
 
@@ -390,10 +369,8 @@ package object scalar_ { // inefficient version with unit compatibility checks
 
     var txt = "\nbase units:\n"
     for (unit <- base_units.reverse) txt += "   " + utype(unit) + "\n"
-
     txt += "\nderived units:\n"
     for (unit <- derived_units.reverse) txt += "   " + utype(unit) + "\n"
-
     txt
     }
 
@@ -417,9 +394,9 @@ package object scalar_ { // inefficient version with unit compatibility checks
 
   case class ScalarI(s: Scalar) { // for "scalar * vector" multiplication
     def * (v: Vector[Int]): Vector[Scalar] = Vectrx(VectorI(v)) * s }
-
   case class ScalarR(s: Scalar) { // for "scalar * vector" multiplication
     def * (v: Vector[Real]): Vector[Scalar] = Vectrx(VectorR(v)) * s }
 
   def Vectr(reals: Real*): Vectrx = Vectrx(Vector(reals:_*).map(Scalar(_)))
+
   }
