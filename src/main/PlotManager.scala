@@ -55,9 +55,14 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
 
     val fileNames = {
 
-      val fileNames1 = testDir.listFiles.toList.map(_.getName)
+      val fileNames0 = testDir.listFiles.toList.map(_.getName)
         .filter(_.startsWith(name)).filter(_.endsWith(".dat"))
-        .map(x=>replaceAtEnd(x,".dat",".pdf")).sorted
+
+      // The following line compensates for an apparent bug in gracebat
+      // that was preventing the filling of "boxes" (rectangles) on the plot:
+      for (f <- fileNames0) Process(s"sed -i '1i@version 50125' $f").!
+
+      val fileNames1 = fileNames0.map(x=>replaceAtEnd(x,".dat",".pdf")).sorted
 
       if (fileNames1.isEmpty) { cleanup(); return }
 
@@ -107,7 +112,9 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
 
   def displayPlots() = {
     val runningLocally = System.getenv("SSH_CLIENT") == null
-    if (runningLocally) Runtime.getRuntime.exec(s"acroread $name.pdf")
+    val command = s"acroread $name.pdf"
+    //val command = s"evince --presentation $name.pdf"
+    if (runningLocally) Runtime.getRuntime.exec(command)
     }
 
   private def printLatexHeader(title: Text, author: Text, intro: Text,
