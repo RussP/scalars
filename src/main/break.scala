@@ -12,8 +12,8 @@ package object break_ {
   def continues(op: => Unit) = try { op } catch { case e: Continue => }
   def breaks   (op: => Unit) = try { op } catch { case e: Break => }
 
-  def continue() = throw new Continue
-  def break()    = throw new Break
+  def continue = throw new Continue
+  def break = throw new Break
   }
 
 /***************************************************************************

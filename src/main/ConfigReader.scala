@@ -31,7 +31,7 @@ case class ConfigReader(fileName: Text) {
 
     val source = scala.io.Source.fromFile(configFile)
 
-    for (line <- source.getLines.map(_.trim).
+    for (line <- source.getLines().map(_.trim).
       filterNot(_.startsWith("#")).map(_.split("//")(0));
       pair <- line.split(";").map(_.trim).filter(_.contains("=")).
       map(_.split("=").map(_.trim))) {

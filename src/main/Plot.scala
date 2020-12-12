@@ -217,7 +217,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
   def axisRanges = (xmapinv(xmin), ymapinv(ymin), xmapinv(xmax), ymapinv(ymax))
 
-  def addGrid() = {
+  def addGrid = {
 
     println
     println("@map color 70 to (200, 200, 200), \"grey\"")
@@ -253,7 +253,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     ticksSet = true
     }
 
-  def setTicks() = { // this may need to be extended for wider ranges
+  def setTicks = { // this may need to be extended for wider ranges
 
     val (xspace, xminor) = Plot.setTicks(xmax - xmin)
     val (yspace, yminor) = Plot.setTicks(ymax - ymin)
@@ -264,7 +264,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     ticksSet = true
     }
 
-  private def setAxisScalesEqual(): Unit = {
+  private def setAxisScalesEqual: Unit = {
 
     var xmin = this.xmin
     var xmax = this.xmax

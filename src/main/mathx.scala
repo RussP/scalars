@@ -2,8 +2,11 @@
 package object mathx_ { // various math functions for Scalars
 
   import scalar_._
+  import scala.math.Ordering.Double.IeeeOrdering
+
   private type Real = Double
-  implicit val order = Ordering.Double.IeeeOrdering
+
+  //implicit val order = Ordering.Double.IeeeOrdering
   //implicit val order = Ordering.Double.TotalOrdering
 
   val Pi = math.Pi
@@ -85,6 +88,6 @@ package object mathx_ { // various math functions for Scalars
   //def max(x: Scalar, y: Scalar): Scalar = if (x > y) x else y
 
   def areClose(x: Scalar, y: Scalar) =
-    if (y == 0) x == 0 else abs(x / y - 1) < 1e-13
+    if (y == 0) x == 0 else abs(x/y-1) < 1e-14
 
   }

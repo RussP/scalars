@@ -7,7 +7,7 @@ import scala.language.implicitConversions
 
 case class Complex(real: Scalar, imag: Scalar=0) {
 
-  override def toString: Text =
+  override def toString: Text = if (imag == 0) "%g+0i".form(real) else
     s"%g${if (imag<0) "-" else "+"}%gi".form(real, abs(imag))
 
   lazy val mag = hypot(real, imag) // magnitude

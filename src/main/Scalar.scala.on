@@ -107,6 +107,9 @@ package object scalar_ { // inefficient version with unit compatibility checks
     def this(t: Text) = this(new Units(t))
     def this(s: Scalar) = this(s.num, s.units)
 
+    //def isNaN = num.isNaN // why doesn't this compile?
+    //def isInfinity = num.isInfinity // ditto
+
     override def equals(that: Any): Bool = that match {
       case that: Scalar => that.canEqual(this) && num == that.num &&
         (num == 0 || units == that.units)

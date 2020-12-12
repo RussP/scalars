@@ -20,7 +20,7 @@ package object types_ { // type aliases, conversions, and other useful stuff
   def toBool(t: Text) = t.toBoolean // ditto
 
   def truncToInt (r: Real) = r.toInt // truncate real to integer
-  def truncToLong (r: Real) = r.toLong // truncate real to long integer
+  def truncToLong(r: Real) = r.toLong // truncate real to long integer
 
   def TextBuilder(t: Text="") = new StringBuilder(t) // better name!
   implicit def StringBuilderToText(t: StringBuilder) = Text(t)
@@ -34,13 +34,13 @@ package object types_ { // type aliases, conversions, and other useful stuff
     ): Text = {
 
     print(s"enter $label [$default]: ")
-    val entry = scala.io.StdIn.readLine
+    val entry = scala.io.StdIn.readLine()
     if (entry == "") default else entry
     }
 
-  def stop() = { // breakpoint for debugging
+  def stop = { // breakpoint for debugging
     print("\npress <enter> to continue ")
-    scala.io.StdIn.readLine
+    scala.io.StdIn.readLine()
     ()
     }
 
@@ -50,11 +50,11 @@ package object types_ { // type aliases, conversions, and other useful stuff
     if (x != null) x else default
     }
 
-  def linesFromFile(fileName: Text) = io.Source.fromFile(fileName).getLines
+  def linesFromFile(fileName: Text) = io.Source.fromFile(fileName).getLines()
   def textFromFile(fileName: Text) = linesFromFile(fileName).mkString("\n")
 
   def dataLinesFromFile(fileName: Text) = io.Source.fromFile(fileName)
-    .getLines.map(_.trim).filter(_.nonEmpty).toVector
+    .getLines().map(_.trim).filter(_.nonEmpty).toVector
     .filterNot(_.startsWith("#")).filterNot(_.startsWith("%"))
 
   def splitLine(line: Text) = line.trim.split(" *[ ,] *").toVector
@@ -77,7 +77,7 @@ package object types_ { // type aliases, conversions, and other useful stuff
   def printStackTrace = new Exception().printStackTrace
 
   lazy val ncores = Runtime.getRuntime().availableProcessors()
-  def printNumCores() = println(s"\n$ncores processor cores available")
+  def printNumCores = println(s"\n$ncores processor cores available")
 
   val nullFile = if (util.Properties.isWin) "nul" else "/dev/null"
   }

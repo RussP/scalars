@@ -110,7 +110,7 @@ case class PlotManager(name: Text, dir: Text=".", startClean: Bool=true) {
       }
     }
 
-  def displayPlots() = {
+  def displayPlots = {
     val runningLocally = System.getenv("SSH_CLIENT") == null
     val command = s"acroread $name.pdf"
     //val command = s"evince --presentation $name.pdf"

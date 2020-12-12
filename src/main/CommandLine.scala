@@ -67,7 +67,7 @@ case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
   protected var argsUsed = Set[Text]() // arguments used in the program
   protected var nonDefArgs = Map[Text, Text]() // non-default arguments
 
-  protected def checkOptions() = {
+  protected def checkOptions = {
     // check whether options given on command line are in the list of
     // valid options (if provided by user)
 
@@ -111,7 +111,7 @@ case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
     txt
     }
 
-  def warnOfUnusedOptions() = warnOfUnusedOptionsExcept()
+  def warnOfUnusedOptions = warnOfUnusedOptionsExcept()
 
   def warnOfUnusedOptionsExcept(ignore: Text*): Unit =
     warnOfUnusedOptionsExcept(ignore.toSet)
