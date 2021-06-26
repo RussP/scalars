@@ -32,7 +32,6 @@ case object ScalarTest {
     printlnx( 3 * nmi, "= 3 nmi" )
     printlnx( -nmi, "= -1 nmi" )
     printlnx( 30 * sec, "= 0.5 Min" )
-    printlnx( 3 * lbf, "= 3 lbf" )
     printlnx( 3.3 * kn, "= 3.3 kn" )
     printlnx( "utype(nmi) =", utype(3*nmi) )
     printlnx( "utype(pow(nmi,55)) =", utype(pow(nmi,55)) )
@@ -51,11 +50,7 @@ case object ScalarTest {
 
     assert( 100 * kn * hr == 100 * nmi )
     assert( 1200 * ft / Min == 1200 * fpm )
-    assert( 3.4 * kg > 3.3 * kg )
-    assert( sqrt(pow(2 * lbm, 6)) == 8 * cube(lbm) )
     assert( abs(2 + 4 * ft / ft - 6) < tol )
-    assert( 4 * lbf + 0 == 4 * lbf)
-    assert( 0 + 4 * lbf == 4 * lbf)
     assert( -3 * kn < 0 )
 
     assert( min(2 * ft, 3 * ft) == 2 * ft )
@@ -92,9 +87,9 @@ case object ScalarTest {
     try { val y = 3 * ft + 2 * sec }
     catch { case ex: RuntimeException => println("ERROR: ft + sec") }
 
-    try { 6 * sec == "hello" }
-    catch { case ex: RuntimeException =>
-        println("ERROR: cannot do 6 * sec == \"hello\"") }
+    //try { 6 * sec == "hello" }
+    //catch { case ex: RuntimeException =>
+    //    println("ERROR: cannot do 6 * sec == \"hello\"") }
 
     val z = List(4*ft, 3*ft, 7.5*ft, -2.9*ft)
     assert( z.max ==  7.5 * ft )

@@ -4,11 +4,11 @@ package scalar_
 import types_._
 import mathx_._
 
-case class ScalarRange(low: Scalar=0, high: Scalar=0) {
+case class ScalarRange(low: Scalar=0, high: Scalar=0):
 
-  val good = high >= low
-  if (not(good)) printlnx("\nScalarRange err:", low, high)
-  require(good)
+  val valid = high >= low
+  if not(valid) then printlnx(s"\nScalarRange err: low($low) > high($high)")
+  require(valid)
 
   def dif = high - low
   def hasOverlapWith(that: ScalarRange) = separation(that) == 0
@@ -26,16 +26,15 @@ case class ScalarRange(low: Scalar=0, high: Scalar=0) {
   def notContainedBy(that: ScalarRanges): Bool = not(isContainedBy(that))
 
   def separation(that: ScalarRange): Scalar =
-    if (that.low > high) that.low - high else
-    if (low > that.high) low - that.high else 0
+    if that.low > high then that.low - high else
+    if low > that.high then low - that.high else 0
 
-  def intersection(that: ScalarRange): Option[ScalarRange] = {
-    if (that.low > high) return None
-    if (that.high < low) return None
+  def intersection(that: ScalarRange): Option[ScalarRange] =
+    if that.low > high then return None
+    if that.high < low then return None
     val lo = max(that.low, low)
     val hi = min(that.high, high)
     Option(ScalarRange(lo, hi))
-    }
 
   def + (s: Scalar) = ScalarRange(low+s, high+s)
   def - (s: Scalar) = ScalarRange(low-s, high-s)
@@ -46,9 +45,8 @@ case class ScalarRange(low: Scalar=0, high: Scalar=0) {
     s"ScalarRange(${fmt.form(low)}, ${fmt.form(high)})"
 
   override def toString: Text = txt()
-  }
 
-case class ScalarRanges(input: Vector[ScalarRange] = Vector()) {
+case class ScalarRanges(input: Vector[ScalarRange] = Vector()):
 
   lazy val ranges = ScalarRanges.combineRanges(input)
 
@@ -82,84 +80,75 @@ case class ScalarRanges(input: Vector[ScalarRange] = Vector()) {
   def * (s: Scalar) = copy(ranges.map(_ * s))
   def / (s: Scalar) = copy(ranges.map(_ / s))
 
-  def contains(s: Scalar): Bool = {
-    for (range <- ranges) if (range.contains(s)) return true
+  def contains(s: Scalar): Bool =
+    for range <- ranges if range.contains(s) do return true
     false
-    }
 
-  def contains(s: ScalarRange): Bool = {
-    for (range <- ranges) if (range.contains(s)) return true
+  def contains(s: ScalarRange): Bool =
+    for range <- ranges if range.contains(s) do return true
     false
-    }
 
   def containsNot(s: Scalar) = not(contains(s))
   def containsNot(s: ScalarRange) = not(contains(s))
 
-  def contains(that: ScalarRanges): Bool = {
-    for (range2 <- that.ranges) {
+  def contains(that: ScalarRanges): Bool =
+    for range2 <- that.ranges do
       var contained = false
       for (range1 <- ranges) if (range1.contains(range2)) contained = true
-      if (not(contained)) return false
-      }
+      if not(contained) then return false
     true
-    }
 
   def isContainedBy(that: ScalarRanges): Bool = that.contains(this)
   def notContainedBy(that: ScalarRanges): Bool = not(isContainedBy(that))
 
-  def intersection(that: ScalarRanges): Option[ScalarRanges] = {
+  def intersection(that: ScalarRanges): Option[ScalarRanges] =
     val temp = for (r1 <- ranges; r2 <- that.ranges) yield r1 intersection r2
-    if (temp.isEmpty) None else
+    if temp.isEmpty then None else
     Option(ScalarRanges(temp.flatten))
-    }
 
-  def complement(floor: Scalar, ceiling: Scalar): ScalarRanges = {
+  def complement(floor: Scalar, ceiling: Scalar): ScalarRanges =
     // open ranges from floor to ceiling
 
-    if (isEmpty) return ScalarRanges(Vector(ScalarRange(floor, ceiling)))
+    if isEmpty then return ScalarRanges(Vector(ScalarRange(floor, ceiling)))
 
     val low = lowOption.get
     val high = highOption.get
 
     var output = Vector[ScalarRange]()
 
-    if (floor < low) output :+= ScalarRange(floor, low)
+    if floor < low then output :+= ScalarRange(floor, low)
     for (Vector(r1, r2) <- ranges.sliding(2))
       output :+= ScalarRange(r1.high, r2.low)
-    if (ceiling > high) output :+= ScalarRange(high, ceiling)
+    if ceiling > high then output :+= ScalarRange(high, ceiling)
 
     ScalarRanges(output)
-    }
-  }
 
-object ScalarRanges {
+object ScalarRanges:
 
   def noOverlap(ranges: Vector[ScalarRange]) = not(rangesOverlap(ranges))
 
-  def rangesOverlap(ranges: Vector[ScalarRange]): Bool = {
-    for (r1 <- ranges; r2 <- ranges if r2.low < r1.low)
-      if (r1 hasOverlapWith r2) return true
+  def rangesOverlap(ranges: Vector[ScalarRange]): Bool =
+    for r1 <- ranges; r2 <- ranges if r2.low < r1.low do
+      if r1 hasOverlapWith r2 then return true
     false
-    }
 
-  def combineRanges(ranges: Vector[ScalarRange]): Vector[ScalarRange] = {
+  def combineRanges(ranges: Vector[ScalarRanges]): ScalarRanges =
+    ScalarRanges(ranges.map(_.ranges).flatten)
+
+  def combineRanges(ranges: Vector[ScalarRange]): Vector[ScalarRange] =
     // merge ranges into non-overlapping ranges based on
     // https://www.geeksforgeeks.org/merging-intervals
 
-    if (ranges.isEmpty) return ranges
+    if ranges.isEmpty then return ranges
 
     val ranges1 = ranges.sortBy(_.low)
     var output = ranges1.take(1) // output to be constructed
 
-    for (range <- ranges1.drop(1)) {
+    for range <- ranges1.drop(1) do
       val last = output.last
-      if (range.low > last.high) output :+= range
+      if range.low > last.high then output :+= range
       else if (last.high < range.high)
         output = output.dropRight(1) :+ last.copy(high=range.high)
-      }
 
     //assert(noOverlap(output))
     output
-    }
-
-  }

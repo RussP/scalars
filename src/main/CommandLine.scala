@@ -26,7 +26,7 @@ program.
 
 Here is an example of its usage (assuming the command line shown above):
 
-  def main(args: Array[Text]) {
+  def main(args: Array[Text]) =
 
     val options = Set("x", "y", "zz", "rr", "k", "a") // valid options
 
@@ -42,7 +42,6 @@ Here is an example of its usage (assuming the command line shown above):
     val a3 = com.Int(5, 22) // regular argument with default value 22
 
     com.warnOfUnusedOptions // list of valid options not needed!
-    }
 
 ************************************************************************** */
 
@@ -51,137 +50,114 @@ package tools_
 import types_._
 
 case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
-    numArgsReq: Int=0)
-  {
+    numArgsReq: Int=0):
+ 
   val line = array.mkString(" ").trim // reconstructed command line
   val args = array.toVector.filterNot(_.contains("="))
   val opts = array.filter(_.contains("=")).map(_.split("="))
-    .map(x => (x(0), x(1))).toMap
+      .map(x => (x(0), x(1))).toMap
 
   checkOptions
 
   val argCount = args.length // number of non-assignment arguments
-  if (argCount < numArgsReq) { printlnx(s"\n$numArgsReq arg(s) needed"); stop }
+  if argCount < numArgsReq then { printlnx(s"\n$numArgsReq arg(s) needed"); stop }
 
   protected var optsUsed = Map[Text, Text]() // options used in the program
   protected var argsUsed = Set[Text]() // arguments used in the program
   protected var nonDefArgs = Map[Text, Text]() // non-default arguments
 
-  protected def checkOptions = {
+  protected def checkOptions =
     // check whether options given on command line are in the list of
     // valid options (if provided by user)
 
     def message(key: Text) = s"Invalid command-line option: $key" +
       s"\n\nvalid options: $options\n"
 
-    for ((key, _) <- opts if not(options(key)))
+    for (key, _) <- opts if not(options(key)) do
       throw new RuntimeException(message(key))
-    }
 
   protected def isSet(opt: Text): Bool = opts contains opt
 
-  protected def boolx(str: Text): Text = str match { // shorthand for boolean
-
+  protected def boolx(str: Text): Text = str match // shorthand for boolean
     case "t" => "true"
     case "f" => "false"
-
     case _ => str
-    }
 
-  override def toString: Text = {
-
+  override def toString: Text =
     val txt = TextBuilder("\nConfig:")
-
-    for ((name, value) <- optsUsed)
-      txt ++= "\n  " + name + " = " + value
-
-    for (value <- argsUsed)
-      txt ++= "\n  <arg> = " + value
-
+    for (name, value) <- optsUsed do txt ++= "\n  " + name + " = " + value
+    for value <- argsUsed do txt ++= "\n  <arg> = " + value
     txt
-    }
 
-  def nonDefaultArgs: Text = {
-
+  def nonDefaultArgs: Text =
     val txt = TextBuilder("\nnonDefaultArgs:")
-
-    for ((name, value) <- nonDefArgs)
-      txt ++= "\n  " + name + " = " + value
-
+    for (name, value) <- nonDefArgs do txt ++= "\n  " + name + " = " + value
     txt
-    }
 
   def warnOfUnusedOptions = warnOfUnusedOptionsExcept()
 
   def warnOfUnusedOptionsExcept(ignore: Text*): Unit =
     warnOfUnusedOptionsExcept(ignore.toSet)
 
-  def warnOfUnusedOptionsExcept(ignore: Set[Text]): Unit = {
+  def warnOfUnusedOptionsExcept(ignore: Set[Text]): Unit =
     // warn of all options on command line that are not used in the
     // program (possibly due to typos on command line) except for
     // the ones in the "ignore" argument. Call after all options
     // are read into the program.
 
-    for (opt <- opts.keys) {
-      if (not(optsUsed.contains(opt)) && not(ignore(opt))) {
+    for opt <- opts.keys do
+      if (not(optsUsed.contains(opt)) && not(ignore(opt)))
         val msg = "\nWARNING: Invalid or unused command-line option: " +
           opt + "\n\nvalid options: " + optsUsed.keys + "\n"
         System.err.println(msg)
         //throw new RuntimeException(msg)
-        }
-      }
 
-    if (argCount > argsUsed.size) {
+    if argCount > argsUsed.size then
       val msg = TextBuilder("\nWARNING: ")
       msg ++= "unused command-line argument(s): "
       //for (x <- args.drop(argsUsed.length)) msg ++= x + " "
       msg ++= args.drop(argsUsed.size).foldLeft("")(_+_+", ")
       System.err.println(msg)
-      }
-    }
 
   // read and record assignment-style options:
 
-  protected def record[T](option: Text, default: T, value: T): T = {
+  protected def record[T](option: Text, default: T, value: T): T =
     optsUsed += option -> types_.Text(value)
-    if (isSet(option)) nonDefArgs += option -> types_.Text(value) // <-- wrong
+    if isSet(option) then nonDefArgs += option -> types_.Text(value) // <-- wrong
     value
-    }
 
   def Text(option: Text, default: Text=""): Text = // read Text
-    record[Text](option, default, if (isSet(option)) opts(option)
-      else default)
+    record[Text](option, default, if (isSet(option)) opts(option) else default)
 
   def Int(option: Text, default: Int=0): Int = // read an Int
-    record[Int](option, default, if (isSet(option)) toInt(opts(option))
+    record[Int](option, default, if isSet(option) then toInt(opts(option))
       else default)
 
   def Real(option: Text, default: Real=0): Real = // read a Real (Double)
-    record[Real](option, default, if (isSet(option)) toReal(opts(option))
+    record[Real](option, default, if isSet(option) then toReal(opts(option))
       else default)
 
   def Bool(option: Text, default: Bool=false): Bool = // read a Bool
-    record[Bool](option, default, if (isSet(option))
+    record[Bool](option, default, if isSet(option) then
       toBool(boolx(opts(option))) else default)
 
   // read/record regular args, with default if no value given on com line:
 
-  protected def record[T](value: T): T = {
+  protected def record[T](value: T): T =
     argsUsed += types_.Text(value)
     value
-    }
 
   def Text(i: Int, default: Text) =
-    record[Text](if (argCount >= i) args(i-1) else default)
+    record[Text](if argCount >= i then args(i-1) else default)
 
   def Int(i: Int, default: Int) =
-    record[Int](if (argCount >= i) toInt(args(i-1)) else default)
+    record[Int](if argCount >= i then toInt(args(i-1)) else default)
 
   def Real(i: Int, default: Real) =
-    record[Real](if (argCount >= i) toReal(args(i-1)) else default)
+    record[Real](if argCount >= i then toReal(args(i-1)) else default)
 
   def Bool(i: Int, default: Bool) =
-    record[Bool](if (argCount >= i) toBool(boolx(args(i-1)))
+    record[Bool](if argCount >= i then toBool(boolx(args(i-1)))
       else default)
 
   // read/record regular args, with no default (mandatory arguments):
@@ -190,4 +166,3 @@ case class CommandLine(array: Array[Text]=Array(), options: Set[Text]=Set(),
   def Int(i: Int) = record[Int](toInt(args(i-1)))
   def Real(i: Int) = record[Real](toReal(args(i-1)))
   def Bool(i: Int) = record[Bool](toBool(boolx(args(i-1))))
-  }

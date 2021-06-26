@@ -4,120 +4,100 @@ Representation of physical scalars by Russ Paielli <http://RussP.us>.
 For documentation and user guide, see http://RussP.us/scalar-scala.htm
 ************************************************************************** */
 
+package scalar_ // fast version without unit compatibility checks
+
+import types_._
 import language.implicitConversions
 
-import scalar_.Vectorx._
+type Scalar = Real
 
-package object scalar_ { // efficient version without unit compatibility checks
+val zero = 0.0
+val one = 1.0
 
-  type Scalar = Real
-  type Real = Double
+def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
+def Long(s: Scalar) = s.toLong // ditto
+def Real(s: Scalar) = s.toDouble // ditto
 
-  // the following 3 lines taken from types._ so this file does not depend on it
+def abs(s: Real): Real = math.abs(s)
+def pow(s: Real, e: Real): Real = math.pow(s, e)
+def sqrt(s: Real): Real = math.sqrt(s)
+def signum(s: Real): Real = math.signum(s)
+def atan2(y: Real, x: Real): Real = math.atan2(y, x)
 
-  private type Bool = Boolean // shorter name for Boolean
-  private type Text = String // better name for String
+def sin(x: Real): Real = math.sin(x)
+def cos(x: Real): Real = math.cos(x)
+def tan(x: Real): Real = math.tan(x)
 
-  private def Text(x: Any) = x.toString
+def asin(x: Scalar): Scalar = math.asin(Real(x))
+def acos(x: Scalar): Scalar = math.acos(Real(x))
+def atan(x: Scalar): Scalar = math.atan(Real(x))
 
-  def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
-  def Long(s: Scalar) = s.toLong // ditto
-  def Real(s: Scalar) = s.toDouble // ditto
+def min(x: Scalar*): Scalar = x.min
+def max(x: Scalar*): Scalar = x.max
 
-  val zero = 0.0
-  val one = 1.0
+def min(x: Int*): Int = x.min
+def max(x: Int*): Int = x.max
 
-  implicit def ListI1(list: List[Int]) = list map (_.toDouble)
-  implicit def ListI2(list: List[List[Int]]) = list map (ListI1(_))
+private var convertTo = Map[Text, Real]() // output conversion factors
+private var nameToUnitMap = Map[Text, Real]() // map of names to units
 
-  implicit def VectorI1(vec: Vector[Int]) = vec map (_.toDouble)
-  implicit def VectorI2(vec: Vector[Vector[Int]]) = vec map (VectorI1(_))
+def nameToUnit(name: Text) = nameToUnitMap(name)
 
-  def abs(s: Real): Real = math.abs(s)
-  def pow(s: Real, e: Real): Real = math.pow(s, e)
-  def sqrt(s: Real): Real = math.sqrt(s)
-  def signum(s: Real): Real = math.signum(s)
-  def atan2(y: Real, x: Real): Real = math.atan2(y, x)
+def output_units(names: Text*) =
+  println("WARNING: output_units specified with Scalar class off")
 
-  def sin(x: Real): Real = math.sin(x)
-  def cos(x: Real): Real = math.cos(x)
-  def tan(x: Real): Real = math.tan(x)
+def format(numx: Real, uname: Text, fmt: Text=""): Text =
 
-  def asin(x: Scalar): Scalar = math.asin(Real(x))
-  def acos(x: Scalar): Scalar = math.acos(Real(x))
-  def atan(x: Scalar): Scalar = math.atan(Real(x))
+  if uname == "" then // no unit name given
+    return if (fmt == "") Text(numx) else fmt.format(numx)
 
-  private var convertTo = Map[Text, Real]() // output conversion factors
-  private var nameToUnitMap = Map[Text, Real]() // map of names to units
+  val num = numx * convertTo(uname)
 
-  def nameToUnit(name: Text) = nameToUnitMap(name)
+  val out = if (fmt != "") fmt.format(num) else
+    if num % 1 == 0 then Text(num.toInt) else Text(num)
 
-  def output_units(names: Text*) =
-    println("WARNING: output_units specified with Scalar class off")
+  out + " " + uname
 
-  def format(numx: Real, uname: Text, fmt: Text=""): Text = {
+def form(numx: Real, unit: Scalar, fmt: Text=""): Text =
 
-    if (uname == "") // no unit name given
-      return if (fmt == "") Text(numx) else fmt.format(numx)
+  val num = Real(numx/unit)
 
-    val num = numx * convertTo(uname)
+  if fmt != "" then fmt.format(num) else
+  if num % 1 == 0 then Text(num.toInt) else
+  Text(num)
 
-    val out = if (fmt != "") fmt.format(num) else
-      if (num % 1 == 0) Text(num.toInt) else Text(num)
+def base_unit(name: Text="", x: Text="", y: Text=""): Real = // new base unit
+  convertTo += name -> 1
+  nameToUnitMap += name -> 1
+  1
 
-    out + " " + uname
-    }
+def unit(name: Text, equiv: Real, x: Text="", y: Text=""): Real =
+  // new derived unit
+  convertTo += name -> 1/equiv
+  nameToUnitMap += name -> equiv
+  equiv
 
-  def form(numx: Real, unit: Scalar, fmt: Text=""): Text = {
+def utype(x: Real): Text = "unknown (Scalar class off for efficiency)"
+def unitList: Text = "no units (Scalar class off for efficiency)"
 
-    val num = Real(numx/unit)
+implicit def ListI1(list: List[Int]): List[Real] = list map (_.toDouble)
+implicit def ListI2(list: List[List[Int]]): List[List[Real]] =
+    list map (ListI1(_))
 
-    if (fmt != "") fmt.format(num) else
-    if (num % 1 == 0) Text(num.toInt) else
-    Text(num)
-    }
+implicit def VectorI1(vec: Vector[Int]): Vector[Real] = vec map (_.toDouble)
+implicit def VectorI2(vec: Vector[Vector[Int]]): Vector[Vector[Real]] =
+    vec map (VectorI1(_))
 
-  def base_unit(name: Text="", x: Text="", y: Text=""):
-    Real = { // new base unit
+implicit def RealToScalar1(x: Real): Scalar1 = new Scalar1(x)
+implicit def RealToScalar2(x: Real): Scalar2 = new Scalar2(x)
+implicit def IntToScalar1(x: Int): Scalar1 = new Scalar1(x)
+implicit def IntToScalar2(x: Int): Scalar2 = new Scalar2(x)
 
-    convertTo += name -> 1
-    nameToUnitMap += name -> 1
-    1
-    }
+implicit def TextToText1(s: Text): Text1 = new Text1(s)
 
-  def unit(name: Text, equiv: Real, x: Text="", y: Text=""):
-    Real = { // new derived unit
+class Scalar1(val s: Scalar): // for "scalar * vector" multiplication
+  def * (v: Vector[Scalar]): Vector[Scalar] = v * s
+class Scalar2(val s: Scalar): // for "scalar * vector" multiplication
+  def * (v: Vector[Int]): Vector[Scalar] = VectorI1(v) * s
 
-    convertTo += name -> 1/equiv
-    nameToUnitMap += name -> equiv
-    equiv
-    }
-
-  def utype(x: Real): Text = "unknown (Scalar class off for efficiency)"
-  def unitList(): Text = "no units (Scalar class off for efficiency)"
-
-  //implicit def ScalarToScalar1(x: Scalar) = new Scalar1(x)
-  implicit def RealToScalar1(x: Real) = new Scalar1(x)
-  implicit def RealToScalar2(x: Real) = new Scalar2(x)
-  implicit def IntToScalar1(x: Int) = new Scalar1(x)
-  implicit def IntToScalar2(x: Int) = new Scalar2(x)
-
-  implicit def TextToText1(s: Text) = new Text1(s)
-
-  def Vectr(reals: Real*): Vectrx = Vectrx(Vector(reals:_*))
-  }
-
-package scalar_ {
-
-  class Scalar1(val scalar: Scalar) { // for "scalar * vector" multiplication
-    def * (vector: Vector[Scalar]): Vector[Scalar] = vector * scalar
-    }
-
-  class Scalar2(val scalar: Scalar) { // for "scalar * vector" multiplication
-    def * (vector: Vector[Int]): Vector[Scalar] = VectorI1(vector) * scalar
-    }
-
-  class Text1(val s: String) {
-    def form(args: Any*) = s.format(args: _*)
-    }
-  }
+class Text1(val s: String) { def form(args: Any*) = s.format(args: _*) }

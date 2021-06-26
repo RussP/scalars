@@ -3,7 +3,7 @@ package tools_
 import types_._
 
 case class PrintWriterx(fileName: Text=nullFile)
-  extends java.io.PrintWriter(fileName) {
+  extends java.io.PrintWriter(fileName):
   // adds convenience features to Java PrintWriter class
 
   val isNull = fileName == nullFile
@@ -14,4 +14,3 @@ case class PrintWriterx(fileName: Text=nullFile)
 
   def printx(a: Any*)(implicit s: Text=" ") = print(a.mkString(s))
   def printlnx(a: Any*)(implicit s: Text=" ") = println(a.mkString(s))
-  }

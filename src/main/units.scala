@@ -19,134 +19,148 @@ http://ts.nist.gov/ts/htdocs/230/235/appxc/appxc.htm
 http://en.wikipedia.org/wiki/Category:Units_of_measure
 *************************************************************************** */
 
+package units_ // standard physical units
+
 import mathx_._
 import scalar_._
 
-package object units_ { // standard physical units
+val rad = base_unit("", "radian", "angle")
 
-  val rad = base_unit("", "radian", "angle")
+// SI metric base units:
 
-  // SI metric base units:
+val s   = base_unit("s", "second", "time")
+val m   = base_unit("m", "meter", "length")
+val kg  = base_unit("kg", "kilogram", "mass")
+val A   = base_unit("A", "ampere", "electric current")
+val K   = base_unit("K", "kelvin", "temperature")
+val mol = base_unit("mol", "mole", "amount of substance")
+val cd  = base_unit("cd", "candela", "luminous intensity")
 
-  val s   = base_unit("s", "second", "time")
-  val m   = base_unit("m", "meter", "length")
-  val kg  = base_unit("kg", "kilogram", "mass")
-  val A   = base_unit("A", "ampere", "electric current")
-  val K   = base_unit("K", "kelvin", "temperature")
-  val mol = base_unit("mol", "mole", "amount of substance")
-  val cd  = base_unit("cd", "candela", "luminous intensity")
+// Common scaled variations of base units:
 
-  // Common scaled variations of base units:
+val ms = unit("ms", s/1000, "millisecond", "time")
+val us = unit("us", ms/1000, "microsecond", "time")
+val mm = unit("mm", m/1000, "millimeter", "length")
+val um = unit("um", mm/1000, "micrometer", "length")
+val cm = unit("cm", m/100, "centimeter", "length")
+val km = unit("km", 1000*m, "kilometer", "length")
+val g  = unit("g" , kg/1000, "gram", "mass")
+val mg = unit("mg", g/1000, "milligram", "mass")
+val ug = unit("ug", mg/1000, "microgram", "mass")
+val mA = unit("mA", A/1000, "milliamp", "electric current")
+val uA = unit("uA", mA/1000, "microamp", "electric current")
 
-  val ms = unit("ms", s/1000, "millisecond", "time")
-  val us = unit("us", ms/1000, "microsecond", "time")
-  val mm = unit("mm", m/1000, "millimeter", "length")
-  val um = unit("um", mm/1000, "micrometer", "length")
-  val cm = unit("cm", m/100, "centimeter", "length")
-  val km = unit("km", 1000*m, "kilometer", "length")
-  val g  = unit("g" , kg/1000, "gram", "mass")
-  val mg = unit("mg", g/1000, "milligram", "mass")
-  val ug = unit("ug", mg/1000, "microgram", "mass")
-  val mA = unit("mA", A/1000, "milliamp", "electric current")
-  val uA = unit("uA", mA/1000, "microamp", "electric current")
+// Derived units with special names and symbols:
 
-  // Derived units with special names and symbols:
+val sr  = unit("sr", rad, "steradian", "solid angle")
+val deg = unit("deg", rad * math.Pi/180, "degree", "plane angle")
+val Hz  = unit("Hz", 1/s, "hertz", "frequency")
+val N   = unit("N", kg*m/sqr(s), "newton", "force")
+val Pa  = unit("Pa", N/sqr(m), "pascal", "pressure")
+val J   = unit("J", N*m, "joule", "energy/work/heat")
+val W   = unit("W", J/s, "watt", "power")
+val C   = unit("C", A*s, "coulomb", "electric charge")
+val V   = unit("V", W/A, "volt", "electric potential")
+val F   = unit("F", C/V, "farad", "capacitance")
+val ohm = unit("ohm", V/A, "ohm", "electric resistance")
+val S   = unit("S", A/V, "siemens", "electric conductance")
+val Wb  = unit("Wb", V*s, "weber", "magnetic flux")
+val T   = unit("T", Wb/sqr(m), "tesla", "magnetic flux density")
+val H   = unit("H", Wb/A, "henry", "inductance")
+val lm  = unit("lm", cd*sr, "lumen", "luminous flux")
+val lx  = unit("lx", lm/sqr(m), "lux", "illuminance")
+val Bq  = unit("Bq", 1/s, "becquerel", "activity (of radionuclide)")
+val Gy  = unit("Gy", J/kg, "gray", "absorbed dose")
+val Sv  = unit("Sv", J/kg, "sievert", "dose equivalent")
+val kat = unit("kat", mol/s, "katal", "catalytic activity")
 
-  val sr  = unit("sr", rad, "steradian", "solid angle")
-  val deg = unit("deg", rad * math.Pi/180, "degree", "plane angle")
-  val Hz  = unit("Hz", 1/s, "hertz", "frequency")
-  val N   = unit("N", kg*m/sqr(s), "newton", "force")
-  val Pa  = unit("Pa", N/sqr(m), "pascal", "pressure")
-  val J   = unit("J", N*m, "joule", "energy/work/heat")
-  val W   = unit("W", J/s, "watt", "power")
-  val C   = unit("C", A*s, "coulomb", "electric charge")
-  val V   = unit("V", W/A, "volt", "electric potential")
-  val F   = unit("F", C/V, "farad", "capacitance")
-  val ohm = unit("ohm", V/A, "ohm", "electric resistance")
-  val S   = unit("S", A/V, "siemens", "electric conductance")
-  val Wb  = unit("Wb", V*s, "weber", "magnetic flux")
-  val T   = unit("T", Wb/sqr(m), "tesla", "magnetic flux density")
-  val H   = unit("H", Wb/A, "henry", "inductance")
-  val lm  = unit("lm", cd*sr, "lumen", "luminous flux")
-  val lx  = unit("lx", lm/sqr(m), "lux", "illuminance")
-  val Bq  = unit("Bq", 1/s, "becquerel", "activity (of radionuclide)")
-  val Gy  = unit("Gy", J/kg, "gray", "absorbed dose")
-  val Sv  = unit("Sv", J/kg, "sievert", "dose equivalent")
-  val kat = unit("kat", mol/s, "katal", "catalytic activity")
+// Common scaled variations of derived units:
 
-  // Common scaled variations of derived units:
+val kHz = unit("kHz", 1000*Hz, "kilohertz", "frequency")
+val MHz = unit("MHz", 1000*kHz, "megahertz", "frequency")
+val GHz = unit("GHz", 1000*MHz, "gigahertz", "frequency")
+val kN  = unit("kN", 1000*N, "kilonewton", "force")
+val kPa = unit("kPa", 1000*Pa, "kilopascal", "pressure")
+val kJ  = unit("kJ", 1000*J, "kilojoule", "energy/work/heat")
+val MJ  = unit("MJ", 1000*kJ, "megajoule", "energy/work/heat")
+val GJ  = unit("GJ", 1000*MJ, "gigajoule", "energy/work/heat")
+val mW  = unit("mW", W/1000, "milliwatt", "power")
+val kW  = unit("kW", 1000*W, "kilowatt", "power")
+val MW  = unit("MW", 1000*kW, "megawatt", "power")
+val GW  = unit("GW", 1000*MW, "gigawatt", "power")
+val kV  = unit("kV", 1000*V, "kilovolt", "electric potential")
+val mS  = unit("mS", S/1000, "millisiemens", "electric conductance")
+val mH  = unit("mH", H/1000, "millihenry", "inductance")
+val uH  = unit("uH", mH/1000, "microhenry", "inductance")
+val mF  = unit("mF", F/1000, "millifarad", "capacitance")
+val uF  = unit("uF", mF/1000, "microfarad", "capacitance")
 
-  val kHz = unit("kHz", 1000*Hz, "kilohertz", "frequency")
-  val MHz = unit("MHz", 1000*kHz, "megahertz", "frequency")
-  val GHz = unit("GHz", 1000*MHz, "gigahertz", "frequency")
-  val kN  = unit("kN", 1000*N, "kilonewton", "force")
-  val kPa = unit("kPa", 1000*Pa, "kilopascal", "pressure")
-  val kJ  = unit("kJ", 1000*J, "kilojoule", "energy/work/heat")
-  val MJ  = unit("MJ", 1000*kJ, "megajoule", "energy/work/heat")
-  val GJ  = unit("GJ", 1000*MJ, "gigajoule", "energy/work/heat")
-  val mW  = unit("mW", W/1000, "milliwatt", "power")
-  val kW  = unit("kW", 1000*W, "kilowatt", "power")
-  val MW  = unit("MW", 1000*kW, "megawatt", "power")
-  val GW  = unit("GW", 1000*MW, "gigawatt", "power")
-  val kV  = unit("kV", 1000*V, "kilovolt", "electric potential")
-  val mS  = unit("mS", S/1000, "millisiemens", "electric conductance")
-  val mH  = unit("mH", H/1000, "millihenry", "inductance")
-  val uH  = unit("uH", mH/1000, "microhenry", "inductance")
-  val mF  = unit("mF", F/1000, "millifarad", "capacitance")
-  val uF  = unit("uF", mF/1000, "microfarad", "capacitance")
+// other common units (including non-metric):
 
-  // other common units (including non-metric):
+val Min = unit("Min", 60*s, "minute", "time")
+val hr  = unit("hr", 60*Min, "hour", "time")
 
-  val Min = unit("Min", 60*s, "minute", "time")
-  val hr  = unit("hr", 60*Min, "hour", "time")
+val ft  = unit("ft", 0.3048*m, "feet", "length")
+val FL  = unit("FL", 100*ft, "Flight Level", "length") // aircraft altitude
+val kft = unit("kft", 1000*ft, "kilofeet", "length") // aircraft altitude
+val In  = unit("In", ft/12, "inch", "length")
+val nmi = unit("nmi", 1852*m, "nautical mile", "length")
+val mi  = unit("mi", 1609.344*m, "statute mile", "length")
 
-  val ft  = unit("ft", 0.3048*m, "feet", "length")
-  val FL  = unit("FL", 100*ft, "Flight Level", "length") // aircraft altitude
-  val kft = unit("kft", 1000*ft, "kilofeet", "length") // aircraft altitude
-  val In  = unit("In", ft/12, "inch", "length")
-  val nmi = unit("nmi", 1852*m, "nautical mile", "length")
-  val mi  = unit("mi", 1609.344*m, "statute mile", "length")
+val lbm = unit("lbm", 0.45359237*kg, "pound", "mass")
+val lbf = unit("lbf", 4.448222*N, "pound", "force")
+val dyn = unit("dyn", 1e-5*N, "dyne", "force")
+val slug = unit("slug", 14.59390*kg, "slug", "mass")
 
-  val lbm = unit("lbm", 0.45359237*kg, "pound", "mass")
-  val lbf = unit("lbf", 4.448222*N, "pound", "force")
-  val dyn = unit("dyn", 1e-5*N, "dyne", "force")
-  val slug = unit("slug", 14.59390*kg, "slug", "mass")
+val kn  = unit("kn", nmi/hr, "knot", "speed")
+val kph = unit("kph", km/hr, "kilometer/hour", "speed")
+val mph = unit("mph", mi/hr, "mile per hour", "speed")
+val fpm = unit("fpm", ft/Min, "foot/minute", "speed") // altitude rate
+val fps = unit("fps", ft/s, "foot/second", "speed")
 
-  val kn  = unit("kn", nmi/hr, "knot", "speed")
-  val kph = unit("kph", km/hr, "kilometer/hour", "speed")
-  val mph = unit("mph", mi/hr, "mile per hour", "speed")
-  val fpm = unit("fpm", ft/Min, "foot/minute", "speed") // altitude rate
-  val fps = unit("fps", ft/s, "foot/second", "speed")
+val gacc = unit("gacc", 9.80665*m/sqr(s), "gravity accel")
 
-  val gacc = unit("gacc", 9.80665*m/sqr(s), "gravity accel")
+val bar = unit("bar", 100*kPa, "bar", "pressure")
+val atm = unit("atm", 101.325*kPa, "atmosphere", "pressure")
+val psi = unit("psi", lbf/sqr(In), "pounds/inch^2", "pressure")
+val inHg = unit("inHg", 3386.388*Pa, "inches of mercury", "pressure")
 
-  val bar = unit("bar", 100*kPa, "bar", "pressure")
-  val atm = unit("atm", 101.325*kPa, "atmosphere", "pressure")
-  val psi = unit("psi", lbf/sqr(In), "pounds/inch^2", "pressure")
-  val inHg = unit("inHg", 3386.388*Pa, "inches of mercury", "pressure")
+val hp = unit("hp", 746*W, "electric horsepower", "power") // mech. hp=745.69987 W
 
-  val hp = unit("hp", 746*W, "electric horsepower", "power") // mech. hp=745.69987 W
+val Wh  = unit("Wh", W*hr, "watt-hour", "energy")
+val kWh = unit("kWh", 1000*Wh, "kilowatt-hour", "energy")
+val Btu = unit("Btu", 1055.056*J, "British thermal unit", "energy") // Intl Table
+val erg = unit("erg", 1e-7*J, "erg", "energy")
+val eV  = unit("eV", 1.602176e-19*J, "electron-volt", "energy")
+val cal = unit("cal", 4.185*J, "gram (small) calorie", "energy")
 
-  val Wh  = unit("Wh", W*hr, "watt-hour", "energy")
-  val kWh = unit("kWh", 1000*Wh, "kilowatt-hour", "energy")
-  val Btu = unit("Btu", 1055.056*J, "British thermal unit", "energy") // Intl Table
-  val erg = unit("erg", 1e-7*J, "erg", "energy")
-  val eV  = unit("eV", 1.602176e-19*J, "electron-volt", "energy")
-  val cal = unit("cal", 4.185*J, "gram (small) calorie", "energy")
+val rpm = unit("rpm", 2*math.Pi*rad/s, "rev/minute", "angular velocity")
+val cfm = unit("cfm", cube(ft)/Min, "feet^3/minute", "flow rate")
 
-  val rpm = unit("rpm", 2*math.Pi*rad/s, "rev/minute", "angular velocity")
-  val cfm = unit("cfm", cube(ft)/Min, "feet^3/minute", "flow rate")
+val acre = unit("acre", 43560*sqr(ft), "acre", "area")
+val ha = unit("ha", 1e4*sqr(m), "hectare", "area")
 
-  val acre = unit("acre", 43560*sqr(ft), "acre", "area")
-  val ha = unit("ha", 1e4*sqr(m), "hectare", "area")
+val gal = unit("gal", 231*cube(In), "US gallon", "volume") //usually of liquid
+val L = unit("L", 1000*cube(cm), "liter", "volume") // usually of liquid
 
-  val gal = unit("gal", 231*cube(In), "US gallon", "volume") //usually of liquid
-  val L = unit("L", 1000*cube(cm), "liter", "volume") // usually of liquid
+val Oe = unit("Oe", 79.577*A/m, "oersted", "magnetic field strength")
+val fc = unit("fc", lm/sqr(ft), "footcandle", "illuminance") // light intensity
 
-  val Oe = unit("Oe", 79.577*A/m, "oersted", "magnetic field strength")
-  val fc = unit("fc", lm/sqr(ft), "footcandle", "illuminance") // light intensity
+val degK = K // alternative name for degrees Kelvin
+val degF = unit("degF", K/1.8, "degree Fahrenheit", "temperature")
+val degC = unit("degC", K, "degrees Celsius", "temperature")
 
-  // predefined output conversions:
+// absolute temperature conversions:
+// (note: 5/9 scaling for Fahrenheit done implicitly by degree unit)
+
+def convertTempKtoC(T: Scalar) = T - 273.15 * K // Kelvin to Celsius
+def convertTempCtoK(T: Scalar) = T + 273.15 * K // Celsius to Kelvin
+def convertTempFtoC(T: Scalar) = T - 32 * degF // Fahrenheit to Celsius
+def convertTempCtoF(T: Scalar) = T + 32 * degF // Celsius to Fahrenheit
+def convertTempFtoK(T: Scalar) = convertTempCtoK(convertTempFtoC(T))
+def convertTempKtoF(T: Scalar) = convertTempCtoF(convertTempKtoC(T))
+
+object unit_conversions: // predefined unit conversions
 
   unit("m^2", sqr(m), "square meter", "area")
   unit("m^3", cube(m), "cubic meter", "volume")
@@ -195,18 +209,3 @@ package object units_ { // standard physical units
   unit("mi^3", cube(mi))
   unit("nmi^2", sqr(nmi))
   unit("nmi^3", cube(nmi))
-
-  val degK = K // alternative name for degrees Kelvin
-  val degF = unit("degF", K/1.8, "degree Fahrenheit", "temperature")
-  val degC = unit("degC", K, "degrees Celsius", "temperature")
-
-  // absolute temperature conversions:
-  // (note: 5/9 scaling for Fahrenheit done implicitly by degree unit)
-
-  def convertTempKtoC(T: Scalar) = T - 273.15 * K // Kelvin to Celsius
-  def convertTempCtoK(T: Scalar) = T + 273.15 * K // Celsius to Kelvin
-  def convertTempFtoC(T: Scalar) = T - 32 * degF // Fahrenheit to Celsius
-  def convertTempCtoF(T: Scalar) = T + 32 * degF // Celsius to Fahrenheit
-  def convertTempFtoK(T: Scalar) = convertTempCtoK(convertTempFtoC(T))
-  def convertTempKtoF(T: Scalar) = convertTempCtoF(convertTempKtoC(T))
-  }

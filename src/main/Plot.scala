@@ -1,7 +1,7 @@
 
 /****************************************************************************
 Plotting utilities by Russ Paielli based on the free GRACE plotting
-program obtained from "http://plasma-gate.weizmann.ac.il/Grace"
+program from "http://plasma-gate.weizmann.ac.il/Grace"
 ************************************************************************** */
 
 package tools_
@@ -9,17 +9,17 @@ package tools_
 import types_._
 import mathx_._
 import scalar_._
-import Vectorx._
 
 import java.io.PrintWriter
-import scala.language.reflectiveCalls
+import scala.reflect.Selectable.reflectiveSelectable
 
-class Plot(fileName: Text, title: Text="", subtitle: Text="",
+class Plot(fileName: Text=nullFile, title: Text="", subtitle: Text="",
   xlabel: Text="x", ylabel: Text="y", xunit: Scalar=1, yunit: Scalar=1,
   xref: Scalar=0, yref: Scalar=0, xMargin: Scalar=0, rightMargin: Scalar=0,
   yMargin: Scalar=0, topMargin: Scalar=0, grid: Bool=false,
-  equalAxes: Bool=false, copyAxes: Option[Plot]=None)
-  extends PrintWriter(fileName) {
+  equalAxes: Bool=false, copyAxes: Option[Plot]=None
+  )
+  extends PrintWriter(fileName):
 
   protected case class Objectx(pos: Vector[Scalar], txt: Text)
   protected var targets = Set[Int](10) // target (curve) numbers in use
@@ -31,7 +31,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
   protected var ymin =  1e20
   protected var ymax = -1e20
 
-  if (grid) addGrid
+  if grid then addGrid
 
   val title1 = title
   val subtitle1 = subtitle
@@ -53,14 +53,13 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
   def subtitleAppend(txt: Text) = subtitle(s"$subtitle1 $txt")
 
   def setLabels(title: Text="", subtitle: Text="", xlabel: Text="",
-    ylabel: Text="") = {
+    ylabel: Text="") =
 
-    if (title.nonEmpty) this.title(title)
-    if (subtitle.nonEmpty) this.subtitle(subtitle)
+    if title.nonEmpty then this.title(title)
+    if subtitle.nonEmpty then this.subtitle(subtitle)
 
-    if (xlabel.nonEmpty) println("@xaxis label \"" + xlabel + "\"")
-    if (ylabel.nonEmpty) println("@yaxis label \"" + ylabel + "\"")
-    }
+    if xlabel.nonEmpty then println("@xaxis label \"" + xlabel + "\"")
+    if ylabel.nonEmpty then println("@yaxis label \"" + ylabel + "\"")
 
   setLabels(title, subtitle, xlabel, ylabel)
 
@@ -69,7 +68,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
   def target(lineStyle: Text="solid", lineWidth: Real=1, symbol: Text="",
     size: Real=0.5, color: Text="black", legend: Text="",
-    putInBack: Bool=false): Unit = {
+    putInBack: Bool=false): Unit =
 
     val target1 = if (putInBack) targets.min - 2 else targets.max + 2
 
@@ -83,9 +82,8 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     printlnx(t1, "line color", colorCode(color))
     printlnx(t1, "symbol color", colorCode(color))
     printlnx(t1, "symbol size", size)
-    if (legend != "") printlnx(t1, "legend", "\"" + legend + "\"")
+    if legend != "" then printlnx(t1, "legend", "\"" + legend + "\"")
     printlnx("@target", "g0.s" + target1 + "\n")
-    }
 
   protected def xmap(x: Scalar) = Real((x - xref) / xunit)
   protected def ymap(y: Scalar) = Real((y - yref) / yunit)
@@ -94,16 +92,14 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
   protected def ymapinv(y: Real) = y * yunit + yref
 
   def inFrame(v: Vector[Scalar]): Bool = inFrame(v.x, v.y)
-
-  def inFrame(x: Scalar, y: Scalar): Bool = {
-    if (xmap(x) < xmin) false else
-    if (xmap(x) > xmax) false else
-    if (ymap(y) < ymin) false else
-    if (ymap(y) > ymax) false else
+  def inFrame(x: Scalar, y: Scalar): Bool =
+    if xmap(x) < xmin then false else
+    if xmap(x) > xmax then false else
+    if ymap(y) < ymin then false else
+    if ymap(y) > ymax then false else
     true
-    }
 
-  def scaleToPoint(x: Scalar, y: Scalar) = {
+  def scaleToPoint(x: Scalar, y: Scalar) =
 
     val xval = xmap(x)
     val yval = ymap(y)
@@ -112,112 +108,99 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     xmax = math.max(xval, xmax)
     ymin = math.min(yval, ymin)
     ymax = math.max(yval, ymax)
-    }
 
   protected def addPoint(x: Scalar, y: Scalar)
-    (implicit fmt: Text, rescale: Bool=true) = {
+    (implicit fmt: Text, rescale: Bool=true) =
 
     val xval = xmap(x)
     val yval = ymap(y)
 
-    if (rescale) {
+    if rescale then
       xmin = math.min(xval, xmin)
       xmax = math.max(xval, xmax)
       ymin = math.min(yval, ymin)
       ymax = math.max(yval, ymax)
-      }
 
-    if (fmt.nonEmpty) printlnx(fmt.form(xval, yval)) else
+    if fmt.nonEmpty then printlnx(fmt.form(xval, yval)) else
     printlnx(xval, yval)
-    }
 
-  def Point(x: Scalar, y: Scalar)
-    (implicit fmt: Text="", rescale: Bool=true) =
+  def Point(x: Scalar, y: Scalar)(implicit fmt: Text="", rescale: Bool=true) =
     addPoint(x, y)(fmt, rescale)
 
   def point(p: Vector[Scalar])(implicit fmt: Text="", rescale: Bool=true) =
     addPoint(p.x, p.y)(fmt, rescale)
 
   def plot1point(p: Vector[Scalar], symbol: Text="+", size: Real=1,
-      color: Text="black", rescale: Bool=true) = {
+    color: Text="black", rescale: Bool=true) =
     target(symbol=symbol, size=size, color=color)
     point(p)(rescale=rescale)
-    }
 
   def plot1Point(x: Scalar=0, y: Scalar=0, symbol: Text="+", size: Real=1,
-      color: Text="black", rescale: Bool=true) = {
+    color: Text="black", rescale: Bool=true) =
     target(symbol=symbol, size=size, color=color)
     Point(x, y)(rescale=rescale)
-    }
 
-  def lineCode(style: Text): Int = {
+  def lineCode(style: Text): Int =
 
     val lineCode = Map("" -> 0, "none" -> 0, "solid" -> 1, "dot" -> 2,
       "dash" -> 3, "longdash" -> 4, "dotdash" -> 5)
 
-    if (not(lineCode.contains(style)))
+    if not(lineCode.contains(style)) then
       System.err.println("\nWARNING: invalid line style: " + style)
 
     lineCode.getOrElse(style, 1)
-    }
 
-  def symbolCode(symbol: Text): Int = {
+  def symbolCode(symbol: Text): Int =
 
     val symbolCode = Map("" -> 0, "none" -> 0, "circle" -> 1, "o" -> 1,
       "square" -> 2, "diamond" -> 3, "uptriangle" -> 4,
       "downtriangle" -> 6, "+" -> 8, "plus" -> 8, "x" -> 9,
       "*" -> 10)
 
-    if (not(symbolCode.contains(symbol)))
+    if not(symbolCode.contains(symbol)) then
       System.err.println(s"\nWARNING: invalid symbol: $symbol")
 
     symbolCode.getOrElse(symbol, 1)
-    }
 
-  def colorCode(color: Text): Int = {
+  def colorCode(color: Text): Int =
 
     val colorCode = Map("black" -> 1, "red" -> 2, "blue" -> 4,
       "gray" -> 7, "green" -> 15, "darkgray" -> 80, "darkred" -> 90)
 
-    if (not(colorCode.contains(color)))
+    if not(colorCode.contains(color)) then
       System.err.println(s"\nWARNING: invalid color: $color")
 
     colorCode.getOrElse(color, 1)
-    }
 
   def setxmin(x: Scalar) = { xmin = xmap(x) }
   def setxmax(x: Scalar) = { xmax = xmap(x) }
   def setymin(y: Scalar) = { ymin = ymap(y) }
   def setymax(y: Scalar) = { ymax = ymap(y) }
 
-  def setxRange(x0: Scalar, x1: Scalar) = {
+  def setxRange(x0: Scalar, x1: Scalar) =
     setxmin(x0)
     setxmax(x1)
-    }
 
-  def setyRange(y0: Scalar, y1: Scalar) = {
+  def setyRange(y0: Scalar, y1: Scalar) =
     setymin(y0)
     setymax(y1)
-    }
 
-  def setAxisRanges(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar) = {
+  def setAxisRanges(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar) =
     setxmin(x0)
     setxmax(x1)
     setymin(y0)
     setymax(y1)
-    }
 
-  private def copyAxesFrom(that: Plot): Plot = {
+  private def copyAxesFrom(that: Plot): Plot =
     setxmin(that.xmapinv(that.xmin))
     setxmax(that.xmapinv(that.xmax))
     setymin(that.ymapinv(that.ymin))
     setymax(that.ymapinv(that.ymax))
     this
-    }
 
   def axisRanges = (xmapinv(xmin), ymapinv(ymin), xmapinv(xmax), ymapinv(ymax))
 
-  def addGrid = {
+  def addGrid =
 
     println
     println("@map color 70 to (200, 200, 200), \"grey\"")
@@ -235,25 +218,18 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     println("@xaxis tick minor color 70")
     println("@yaxis tick minor color 70")
     println
-    }
 
-  def setxTicks(major: Real, minor: Int=0) = {
-
+  def setxTicks(major: Real, minor: Int=0) =
     println("\n@xaxis tick major " + major)
     println("@xaxis tick minor ticks " + minor)
-
     ticksSet = true
-    }
 
-  def setyTicks(major: Real, minor: Int=0) = {
-
+  def setyTicks(major: Real, minor: Int=0) =
     println("\n@yaxis tick major " + major)
     println("@yaxis tick minor ticks " + minor)
-
     ticksSet = true
-    }
 
-  def setTicks = { // this may need to be extended for wider ranges
+  def setTicks = // this may need to be extended for wider ranges
 
     val (xspace, xminor) = Plot.setTicks(xmax - xmin)
     val (yspace, yminor) = Plot.setTicks(ymax - ymin)
@@ -262,17 +238,16 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     setyTicks(yspace, yminor)
 
     ticksSet = true
-    }
 
-  private def setAxisScalesEqual: Unit = {
+  private def setAxisScalesEqual: Unit =
 
     var xmin = this.xmin
     var xmax = this.xmax
     var ymin = this.ymin
     var ymax = this.ymax
 
-    if (xmin >= xmax) return
-    if (ymin >= ymax) return
+    if xmin >= xmax then return
+    if ymin >= ymax then return
 
     var xdif = xmax - xmin
     var ydif = ymax - ymin
@@ -280,50 +255,72 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     val xmid = (xmin + xmax) / 2
     val ymid = (ymin + ymax) / 2
 
-    if (xdif > 1.6 * ydif) {
+    if xdif > 1.6 * ydif then
       ydif = xdif / 1.6
       ymin = ymid - ydif / 2
       ymax = ymin + ydif
-      }
-    else {
+    else
       xdif = ydif * 1.6
       xmin = xmid - xdif / 2
       xmax = xmin + xdif
-      }
 
     this.xmin = xmin
     this.xmax = xmax
     this.ymin = ymin
     this.ymax = ymax
-    }
 
   def line1( // draw a line
     p0: { val x: Scalar; val y: Scalar },
     p1: { val x: Scalar; val y: Scalar },
-    style: Text="solid", color: Text="black", width: Real=1, arrow: Int=0,
-    arrowtype: Int=1, arrowlength: Real=2, label: Text="") = {
+    rescale: Bool=false, style: Text="solid", color: Text="black",
+    width: Real=1, arrow: Int=0, arrowtype: Int=1, arrowlength: Real=2) =
 
-    line(p0.x, p0.y, p1.x, p1.y, style=style, color=color,
+    line(p0.x, p0.y, p1.x, p1.y, rescale=rescale, style=style, color=color,
       width=width, arrow=arrow, arrowtype=arrowtype,
-      arrowlength=arrowlength, label=label)
-    }
+      arrowlength=arrowlength)
 
   def line(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar,
-    style: Text="solid", color: Text="black", width: Real=1,
-    arrow: Int=0, arrowtype: Int=1, arrowlength: Real=2, label: Text="") = {
-    // draw a line
+    rescale: Bool=false, style: Text="solid", color: Text="black",
+    width: Real=1, arrow: Int=0, arrowtype: Int=1, arrowlength: Real=2) =
+    // draw a line (with optional arrow)
 
-    val arrow1 = if (arrow == 0) "" else {
+    implicit val rescale1 = rescale
+    target(lineStyle=style, lineWidth=width, color=color)
+    Point(x0, y0)
+    Point(x1, y1)
+
+    if arrow > 0 then
+      val dir = atan2(x1-x0, y1-y0)
+      this.arrow(x1, y1, dir=dir, color=color, width=width)
+
+  def arrow(x0: Scalar, y0: Scalar, dir: Scalar, color: Text="black", 
+    width: Real=1, arrowtype: Int=1, arrowlength: Real=2) =
+    // add an arrow at specified position (uses very short line)
+    val eps = 1e-4 // short line length
+    val x1 = x0 - eps * xunit * sin(dir) // direction (dir) clockwise from north
+    val y1 = y0 - eps * yunit * cos(dir)
+    drawArrow(x0, y0, x1, y1, color=color, width=width, arrowtype=arrowtype,
+        arrowlength=arrowlength)
+
+  def arrow1(pos: { val x: Scalar; val y: Scalar }, dir: Scalar,
+    color: Text="black", width: Real=1, arrowtype: Int=1, arrowlength: Real=2) =
+    arrow(pos.x, pos.y, dir, color=color, width=width, arrowtype=arrowtype,
+        arrowlength=arrowlength)
+
+  private def drawArrow(x0: Scalar, y0: Scalar, x1: Scalar, y1: Scalar,
+    rescale: Bool=false, style: Text="solid", color: Text="black",
+    width: Real=1, arrowtype: Int=1, arrowlength: Real=2): Unit =
+
+    val arrow1 =
       s"@line arrow type $arrowtype\n" +
       s"@line arrow length $arrowlength\n" +
       s"@line arrow layout 0.6, 0.5\n"
-      }
 
     val txt = "\n@with line\n" +
       s"@line on\n" +
       s"@line loctype world\n" +
       s"@line linestyle ${lineCode(style)}\n" +
-      s"@line arrow $arrow\n" + arrow1 +
+      s"@line arrow 2\n" + arrow1 + // 2 for forward arrow (1 for backward)
       s"@line color ${colorCode(color)}\n" +
       s"@line linewidth $width\n" +
       s"@line g0\n" +
@@ -334,71 +331,27 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       fmt.form(ymap(y1)) + "\n" +
       "@line def\n"
 
-    if (label.nonEmpty) { } // to be added
-
     objects :+= Objectx(Vector(x0, y0), txt)
-    }
 
-  def arrow(x0: Scalar, y0: Scalar, dir: Scalar, color: Text="black", 
-    width: Real=1, arrow: Int=1, arrowtype: Int=1, arrowlength: Real=2) = {
-    // add an arrow at specified position and direction (uses very short line)
+  def box(x1: Scalar, y1: Scalar, x2: Scalar, y2: Scalar, rescale: Bool=false,
+    lineStyle: Text="solid", lineWidth: Real=1.0, color: Text="black") =
+    // draw a rectangle
 
-    val eps = 1e-4 * xunit
-    val x1 = x0 - eps * sin(dir) // dir is clockwise from north
-    val y1 = y0 - eps * cos(dir)
+    implicit val rescale1 = rescale
+    target(lineStyle=lineStyle, lineWidth=lineWidth, color=color)
+    Point(x1, y1)
+    Point(x1, y2)
+    Point(x2, y2)
+    Point(x2, y1)
+    Point(x1, y1)
 
-    line(x0, y0, x1, y1, color=color, width=width, arrow=arrow,
-        arrowtype=arrowtype, arrowlength=arrowlength)
-    }
+  def circle(xc: Scalar, yc: Scalar, radius: Scalar, rescale: Bool=false,
+    style: Text="solid", color: Text="black", width: Real=1,
+    angleInc: Scalar=10*Pi/180) = // draw a circle
 
-  def arrow1(
-    pos: { val x: Scalar; val y: Scalar }, dir: Scalar, color: Text="black", 
-    width: Real=1, arrow1: Int=1, arrowtype: Int=1, arrowlength: Real=2) =
-    // add an arrow at specified position and direction (uses very short line)
-    arrow(pos.x, pos.y, dir, color=color, width=width, arrow=arrow1,
-        arrowtype=arrowtype, arrowlength=arrowlength)
-
-  def box(x1: Scalar, y1: Scalar, x2: Scalar, y2: Scalar,
-    lineStyle: Text="solid", lineWidth: Real=1.0, color: Text="black",
-    pattern: Int=0) = { // draw a rectangle (pattern > 1 = filled rectangle)
-
-    val txt = "\n@with box\n" +
-      "@box on\n" +
-      "@box loctype world\n" +
-      "@box g0\n" +
-      "@box " +
-      fmt.form(xmap(x1)) + ", " +
-      fmt.form(ymap(y1)) + ", " +
-      fmt.form(xmap(x2)) + ", " +
-      fmt.form(ymap(y2)) + "\n" +
-      s"@box linestyle ${lineCode(lineStyle)}\n" +
-      s"@box linewidth $lineWidth\n" +
-      s"@box color ${colorCode(color)}\n" +
-      s"@box fill color ${colorCode(color)}\n" +
-      s"@box fill pattern $pattern\n" +
-      s"@box def\n"
-
-    objects :+= Objectx(Vector(x1, y1), txt)
-    }
-
-  def circle(xc: Scalar, yc: Scalar, radius: Scalar,
-    style: Text="solid", color: Text="black") = { // draw a circle
-
-    val txt = "\n@with ellipse\n" +
-      "@ellipse on\n" +
-      "@ellipse loctype world\n" +
-      "@ellipse g0\n" +
-      "@ellipse " +
-      fmt.form(xmap(xc - radius)) + ", " +
-      fmt.form(ymap(yc - radius)) + ", " +
-      fmt.form(xmap(xc + radius)) + ", " +
-      fmt.form(ymap(yc + radius)) + "\n" +
-      s"@ellipse linestyle ${lineCode(style)}\n" +
-      s"@ellipse color ${colorCode(color)}\n" +
-      s"@ellipse def\n"
-
-    objects :+= Objectx(Vector(xc, yc), txt)
-    }
+    target(lineStyle=style, lineWidth=width, color=color)
+    for ang <- scalarStepsx(0, TwoPi, angleInc) do
+      Point(xc + radius * sin(ang), yc + radius * cos(ang))(rescale=rescale)
 
   def circle1(center: { val x: Scalar; val y: Scalar }, radius: Scalar,
     style: Text="solid", color: Text="black") = // draw a circle
@@ -410,7 +363,7 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
 
   def text(text: Text, x: Scalar=0, y: Scalar=0, color: Text="black",
     loctype: Text="world", size: Real=1, just: Int=0,
-    outOfFrame: Bool=false) = { // print text on plot
+    outOfFrame: Bool=false) = // print text on plot
 
     val (x1, y1) = if (loctype == "world") (xmap(x), ymap(y)) else (x, y)
 
@@ -426,12 +379,10 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       s"@string char size $size\n" +
       s"""@string def "$text"\n"""
 
-    if (outOfFrame) println(txt) else
-
+    if outOfFrame then println(txt) else
     objects :+= Objectx(Vector(x, y), txt)
-    }
 
-  def legend(x: Real=0.2, y: Real=0.8, charsize: Real=0.8) = {
+  def legend(x: Real=0.2, y: Real=0.8, charsize: Real=0.8) =
 
     val txt = "\n@legend on\n" +
       "@legend loctype view\n" +
@@ -451,22 +402,20 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
       "@legend invert false\n"
 
     println(txt)
-    }
 
-  override def close = {
+  override def flush = super.flush
 
-    if (xmin > xmax || ymin > ymax) plot1Point()
+  override def close =
+
+    if xmin > xmax || ymin > ymax then plot1Point()
       //System.out.println(s"\nWARNING: negative axis range in $fileName\n")
 
-    if (copyAxes.nonEmpty) copyAxesFrom(copyAxes.get) else {
-
+    if copyAxes.nonEmpty then copyAxesFrom(copyAxes.get) else
       xmin -= Real(xMargin / xunit)
       xmax += Real(max(xMargin, rightMargin) / xunit)
       ymin -= Real(yMargin / yunit)
       ymax += Real(max(yMargin, topMargin) / yunit)
-
-      if (equalAxes) setAxisScalesEqual
-      }
+      if equalAxes then setAxisScalesEqual
 
     printlnx("\n@autoscale onread none")
     printlnx("@world xmin ", xmin)
@@ -475,19 +424,20 @@ class Plot(fileName: Text, title: Text="", subtitle: Text="",
     printlnx("@world ymax ", ymax)
     printlnx("@autoticks")
 
-    for (o <- objects if inFrame(o.pos)) println(o.txt)
-    if (not(ticksSet)) setTicks
+    for o <- objects if inFrame(o.pos) do println(o.txt)
+    if not(ticksSet) then setTicks
 
     super.close
-    }
-  }
 
-object Plot {
+  def close1: Plot = { close; this } // close and return this plot
+  def closeIf(b: Bool): Plot = { if b then close; this }
+
+object Plot:
 
   case class TargetStyle(lineStyle: Text="solid", lineWidth: Real=1,
-      symbol: Text="", size: Real=0.5, color: Text="black", legend: Text="")
+    symbol: Text="", size: Real=0.5, color: Text="black", legend: Text="")
 
-  def setTicks(length: Real): (Real, Int) = {
+  def setTicks(length: Real): (Real, Int) =
 
     import math._
 
@@ -496,11 +446,9 @@ object Plot {
     val scale = pow(10, exp)
     val mant = length1 / scale // mantissa
 
-    if (mant > 8) (2 * scale, 1) else
-    if (mant > 4) (1 * scale, 0) else
-    if (mant > 1.8) (0.5 * scale, 0) else
-    //if (mant > 1.5) (0.5 * scale, 4) else
+    if mant > 8 then (2 * scale, 1) else
+    if mant > 4 then (1 * scale, 0) else
+    if mant > 1.8 then (0.5 * scale, 0) else
+    //if mant > 1.5 then (0.5 * scale, 4) else
     (0.2 * scale, 0)
     //printlnx("\nPlot.scala", length, exp, scale, mant, xx); stop
-    }
-  }

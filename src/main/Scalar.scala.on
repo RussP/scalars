@@ -4,402 +4,376 @@ Representation of physical scalars by Russ Paielli <http://RussP.us>.
 For documentation and user guide, see http://RussP.us/scalar-scala.htm
 ************************************************************************** */
 
+package scalar_ // slow version with unit compatibility checks
+
 import types_._
-import scalar_.Vectorx._
 
 import language.implicitConversions
+import scala.language.strictEquality
 
-package object scalar_ { // inefficient version with unit compatibility checks
+given CanEqual[Map[Text, Real], Map[Text, Real]] = CanEqual.derived
+given CanEqual[Units, Units] = CanEqual.derived
 
-  def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
-  def Long(s: Scalar) = s.toLong // ditto
-  def Real(s: Scalar) = s.toDouble // ditto
+given CanEqual[Scalar, Scalar] = CanEqual.derived
+given CanEqual[Scalar, Real]   = CanEqual.derived
+given CanEqual[Scalar, Float]  = CanEqual.derived
+given CanEqual[Scalar, Int]    = CanEqual.derived
+given CanEqual[Scalar, Long]   = CanEqual.derived
 
-  private[scalar_] case class Units (units: Map[Text, Real]=Map()) {
-    // the units part of a scalar without the numerical coefficient
+val xxx = given_CanEqual_Scalar_Int
 
-    def this(s: Text) = this(Map[Text, Real](s -> 1))
-    def this() = this(Map[Text, Real]())
+def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
+def Long(s: Scalar) = s.toLong // ditto
+def Real(s: Scalar) = s.toDouble // ditto
 
-    override def equals(that: Any): Bool = that match {
-      case that: Units => that.canEqual(this) && units == that.units
-      case _ => throw new RuntimeException(s"$this cannot = $that")
-      }
+private[scalar_] case class Units (units: Map[Text, Real] = Map()):
+  // the units part of a scalar without the number
 
-    def canEqual(that: Any): Bool = that.isInstanceOf[Units]
+  def this(s: Text) = this(Map[Text, Real](s -> 1))
+  def this() = this(Map[Text, Real]())
 
-    override def hashCode: Int = units.hashCode
+  //def canEqual(that: Any): Bool = that.isInstanceOf[Units]
 
-    def isEmpty: Bool = units.isEmpty
+  override def equals(that: Any): Bool = that match
+    //case that: Units => that.canEqual(this) && units == that.units
+    case that: Units => units == that.units
+    case _ => throw new RuntimeException(s"$this cannot = $that")
 
-    override def toString: Text = {
+  override def hashCode: Int = units.hashCode
 
-      val txt = TextBuilder()
-      var sep = "" // separator between units
+  def isEmpty: Bool = units.isEmpty
 
-      var ndenom = 0 // count of units in denominator (negative exponents)
+  override def toString: Text =
 
-      for (unit <- units.keys) {
-        val exp = units(unit)
-        if (exp < 0) ndenom += 1
-        else {
-          txt ++= sep + unit
-          if (exp != 1) {
-            txt ++= "^"
-            txt ++= (if (exp%1==0) Text(exp.toInt) else Text(exp))
-            }
-          sep = "*"
-          }}
+    val txt = TextBuilder()
+    var sep = "" // separator between units
 
-      if (ndenom == 0) return txt // no denominator
+    var ndenom = 0 // count of units in denominator (negative exponents)
 
-      sep = if (ndenom == 1) "/" else "/("
+    for (unit <- units.keys)
+      val exp = units(unit)
+      if exp < 0 then ndenom += 1
+      else
+        txt ++= sep + unit
+        if (exp != 1)
+          txt ++= "^"
+          txt ++= (if (exp%1==0) Text(exp.toInt) else Text(exp))
+        sep = "*"
 
-      for (unit <- units.keys) {
-        val exp = -units(unit)
-        if (exp > 0) {
-          txt ++= sep + unit
-          if (exp != 1) {
-            txt ++= "^"
-            txt ++= (if (exp%1==0) Text(exp.toInt) else Text(exp))
-            }
-          sep = "*"
-          }}
+    if ndenom == 0 then return txt // no denominator
 
-      if (ndenom > 1) txt ++= ")"
-      txt
-      }
+    sep = if (ndenom == 1) "/" else "/("
 
-    // eliminate units with zero exponent:
+    for (unit <- units.keys)
+      val exp = -units(unit)
+      if (exp > 0)
+        txt ++= sep + unit
+        if (exp != 1)
+          txt ++= "^"
+          txt ++= (if (exp%1==0) Text(exp.toInt) else Text(exp))
+        sep = "*"
 
-    private def cleanup: Units = copy(units.filter(_._2 != 0))
-
-    def checkUnits(that: Units): Bool = { // check for inconsistent units
-
-      if (units == that.units) return true
-
-      val message = "Inconsistent Units: <" + this + ">, <" + that + ">"
-      throw new RuntimeException(message)
-      }
-
-    def * (that: Units): Units = {
-
-      var units1 = units
-
-      for (unit <- that.units.keys) {
-        var exp = that.units(unit)
-        if (units.contains(unit)) exp += units1(unit)
-        units1 += unit -> exp
-        }
-
-      Units(units1).cleanup
-      }
-
-    def / (that: Units): Units = that.inverse * this
-    def pow(exp: Real) = Units(units.map(u => (u._1, exp * u._2)))
-    def inverse = Units(units.map(u => (u._1, -u._2)))
-    }
-
-  case class Scalar private[scalar_] (num: Real=1, units: Units=Units())
-    extends Ordered[Scalar] {
-
-    def this(u: Units) = this(1, u)
-    def this(t: Text) = this(new Units(t))
-    def this(s: Scalar) = this(s.num, s.units)
-
-    //def isNaN = num.isNaN // why doesn't this compile?
-    //def isInfinity = num.isInfinity // ditto
-
-    override def equals(that: Any): Bool = that match {
-      case that: Scalar => that.canEqual(this) && num == that.num &&
-        (num == 0 || units == that.units)
-      case that: Real  => this == Scalar(that)
-      case that: Float => this == Scalar(that)
-      case that: Int   => this == Scalar(that)
-      case that: Long  => this == Scalar(that)
-      case _ => throw new RuntimeException(s"$this cannot = $that")
-      }
-
-    def canEqual(that: Any): Bool =
-      that.isInstanceOf[Scalar] || that.isInstanceOf[Number]
-
-    override def hashCode: Int = 41 * (41 + num.hashCode) + units.hashCode
-
-    def noUnits: Bool = units.isEmpty
-
-    private def format1(fmt: Text=""): Text = {
-      val out = if (fmt != "") fmt.format(num) else
-        if (num % 1 == 0) Text(num.toInt) else Text(num)
-      if (num == 0 || noUnits) out else
-      out + " " + units
-      }
-
-    def format(fmt: Text=""): Text = {
-
-      load_output_units
-
-      val name0 = Text(units)
-      if (not(output_prefs.contains(name0))) return format1(fmt)
-
-      val name1 = output_prefs(name0) // preferred output unit name
-      var that = convertTo(name1) * this
-      that.format1(fmt)
-      }
-
-    override def toString: Text = format()
-
-    def toDouble: Real = {
-
-      if (noUnits) return num
-      if (num == 0) return 0
-
-      val message = "Cannot convert " + this + " to Real"
-      throw new RuntimeException(message)
-      }
-
-    def toInt = toDouble.toInt
-    def toLong = toDouble.toLong
-
-    def checkUnits(that: Scalar): Bool = { // check for inconsistent units
-      if (num == 0 || that.num == 0) true else
-      units.checkUnits(that.units)
-      }
-
-    def pow(exp: Real): Scalar = Scalar(math.pow(num, exp), units.pow(exp))
-
-    def unary_- = Scalar(-num, units)
-    def unary_+ = Scalar(+num, units)
-
-    def + (that: Scalar): Scalar = {
-
-      if (num == 0) return that
-      if (that.num == 0) return this
-
-      checkUnits(that)
-      Scalar(num + that.num, units)
-      }
-
-    def - (that: Scalar): Scalar = {
-
-      if (num == 0) return -that
-      if (that.num == 0) return this
-
-      checkUnits(that)
-      Scalar(num - that.num, units)
-      }
-
-    def % (that: Scalar): Scalar = {
-      checkUnits(that)
-      Scalar(num % that.num, units)
-      }
-
-    def * (that: Scalar): Scalar = Scalar(num * that.num, units * that.units)
-    def / (that: Scalar): Scalar = Scalar(num / that.num, units / that.units)
-
-    def * (x: Real): Scalar = Scalar(num * x, units)
-    def / (x: Real): Scalar = Scalar(num / x, units)
-
-    def compare(that: Scalar): Int = {
-      // defines comparison operators and list ordering
-
-      checkUnits(that)
-
-      if (num > that.num)  1 else
-      if (num < that.num) -1 else 0
-      }
-
-    //def * (vec: Vector[Real]): Vector[Scalar] = VectorR(vec) * this
-    //def * (vec: Vector[Scalar]): Vector[Scalar] = vec * this
-    }
-
-  val zero = Scalar(0)
-  val one  = Scalar(1)
-
-  implicit def RealToScalar(r: Real): Scalar = Scalar(r)
-  implicit def IntToScalar(i: Int): Scalar = Scalar(i)
-  //implicit def ScalarToReal(s: Scalar): Real = Real(s) // causes problems!
-
-  implicit def ListI(list: List[Int]): List[Scalar] = list map (Scalar(_))
-  implicit def ListR(list: List[Real]): List[Scalar] = list map (Scalar(_))
-  implicit def VectorI(vec: Vector[Int]): Vector[Scalar] = vec map (Scalar(_))
-  implicit def VectorR(vec: Vector[Real]): Vector[Scalar] = vec map (Scalar(_))
-
-  implicit def ListI2(list: List[List[Int]]) = list map (ListI(_))
-  implicit def ListR2(list: List[List[Real]]) = list map (ListR(_))
-  implicit def VectorI2(vec: Vector[Vector[Int]]) = vec map (VectorI(_))
-  implicit def VectorR2(vec: Vector[Vector[Real]]) = vec map (VectorR(_))
-
-  def abs(s: Scalar): Scalar = Scalar(math.abs(s.num), s.units)
-  def pow(s: Scalar, e: Real): Scalar = s.pow(e)
-  def sqrt(s: Scalar): Scalar = s.pow(0.5)
-  def signum(s: Scalar): Real = math.signum(s.num)
-
-  def copy(d: Real): Real = d
-
-  val err1 = "WARNING: trig arg should be scalar (use rad or deg)\n"
-
-  // The following 3 lines may cause a warning, but they force
-  // the user to specify radians or degrees to avoid errors.
-  
-  def sin(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
-  def cos(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
-  def tan(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad/deg
-
-  def sin(x: Scalar): Real = math.sin(Real(x))
-  def cos(x: Scalar): Real = math.cos(Real(x))
-  def tan(x: Scalar): Real = math.tan(Real(x))
-
-  def asin(x: Scalar): Scalar = math.asin(Real(x))
-  def acos(x: Scalar): Scalar = math.acos(Real(x))
-  def atan(x: Scalar): Scalar = math.atan(Real(x))
-
-  def atan2(y: Scalar, x: Scalar): Scalar = {
-
-    x.checkUnits(y)
-
-    val ax = abs(x)
-    val ay = abs(y)
-
-    if (ax > ay) math.atan2(Real(y/ax), signum(x))
-    else math.atan2(signum(y), Real(x/ay))
-    }
-
-  private var base_units = List[Scalar]()
-  private var derived_units = List[Scalar]()
-  private var output_unit_names = List[Text]()
-
-  private var convertTo = Map[Text, Scalar]() // output conversion factors
-  private var output_prefs = Map[Text, Text]() // output unit preferences
-  private var utypes = Map[Text, Text]() // map of names to physical quantity
-  private var fullnames = Map[Text, Text]() // map of short unit names to full names
-  private var nameToUnitMap = Map[Text, Scalar]() // map of names to units
-
-  def nameToUnit(name: Text) = nameToUnitMap(name)
-
-  private def expand(scalar: Scalar): Scalar = { // expand to base units
-
-    val name = Text(scalar.units)
-    if (convertTo.contains(name)) return scalar / convertTo(name)
-    scalar
-    }
-
-  private var output_units_loaded = false
-
-  def output_units(names: Text*) = {
-    for (name <- names) output_unit_names ::= name
-    output_units_loaded = false
-    }
-
-  def load_output_units(): Unit = {
-
-    if (output_units_loaded) return
-    output_units_loaded = true
-
-    for (name <- output_unit_names.reverse) {
-      val namex = Text(expand(nameToUnitMap(name)).units)
-      output_prefs += namex -> name
-      }
-    }
-
-  def format(scalar: Scalar, uname: Text, fmt: Text=""): Text = {
-
-    if (uname == "") // no unit name given
-      if (fmt == "") return Text(scalar) // no format given
-      else return fmt.format(ScalarToReal(scalar))
-
-    val out = scalar * convertTo(uname)
-    out.format(fmt)
-    }
-
-  def form(scalar: Scalar, unit: Scalar, fmt: Text=""): Text = {
-
-    val num = Real(scalar/unit)
-
-    if (fmt != "") fmt.format(num) else
-    if (num % 1 == 0) Text(num.toInt) else
-    Text(num)
-    }
-
-  private def utype(scalar: Scalar, utype: Text) = // store unit type
-    utypes += Text(scalar.units) -> utype
-
-  def utype(scalar: Scalar): Text = { // return unit type
-
-    val txt = Text(scalar.units)
-    var out = if (scalar.noUnits) "<null>" else txt
-
-    if (fullnames.contains(txt)) out += " = " + fullnames(txt)
-
-    val s2 = expand(scalar)
-    val u2 = Text(s2.units)
-    if (u2 != txt) out += " = " + s2
-
-    if (utypes.contains(txt)) out += ": " + utypes(txt)
-    //else out += ": [unspecified unit type]"
-
-    out
-    }
-
-  def base_unit(name: Text="", fullname: Text="", utype: Text=""):
-    Scalar = { // new base unit
-
-    val scalar = if (name == "") Scalar() else new Scalar(name)
-
-    fullnames += name -> fullname
-    utypes += name -> utype
-    nameToUnitMap += name -> scalar
-    base_units ::= scalar
-    convertTo += name -> 1
-
-    scalar
-    }
-
-  def unit(name: Text, equiv: Scalar, fullname: Text="",
-    utype: Text=""): Scalar = { // new derived unit
-
-    val scalar = if (name == "") Scalar() else new Scalar(name)
-
-    if (fullname != "") fullnames += name -> fullname
-    if (utype != "") utypes += name -> utype
-    nameToUnitMap += name -> equiv
-    derived_units ::= scalar
-    convertTo += name -> scalar / equiv
-
-    equiv
-    }
-
-  def unitList: Text = { // for printing a complete list of units
-
-    var txt = "\nbase units:\n"
-    for (unit <- base_units.reverse) txt += "   " + utype(unit) + "\n"
-    txt += "\nderived units:\n"
-    for (unit <- derived_units.reverse) txt += "   " + utype(unit) + "\n"
+    if ndenom > 1 then txt ++= ")"
     txt
-    }
 
-  def ScalarToReal(x: Any) = x match {
-    case x: Scalar => Real(x)
-    case _ => x
-    }
+  // eliminate units with zero exponent:
 
-  case class Text1(s: Text) {
-    def form(args: Any*) = s.format(args.map(ScalarToReal(_)): _*)
-    }
+  private def cleanup: Units = copy(units.filter(_._2 != 0))
 
-  implicit def TextToText1(s: Text) = Text1(s)
+  def checkUnits(that: Units): Bool = // check for inconsistent units
 
-  implicit def ScalarToScalarI(x: Scalar) = ScalarI(x)
-  implicit def ScalarToScalarR(x: Scalar) = ScalarR(x)
-  implicit def RealToScalarI(x: Real) = ScalarI(x)
-  implicit def RealToScalarR(x: Real) = ScalarR(x)
-  implicit def IntToScalarI(x: Int) = ScalarI(x)
-  implicit def IntToScalarR(x: Int) = ScalarR(x)
+    if units == that.units then return true
+    val message = "Inconsistent Units: <" + this + ">, <" + that + ">"
+    throw new RuntimeException(message)
 
-  case class ScalarI(s: Scalar) { // for "scalar * vector" multiplication
-    def * (v: Vector[Int]): Vector[Scalar] = Vectrx(VectorI(v)) * s }
-  case class ScalarR(s: Scalar) { // for "scalar * vector" multiplication
-    def * (v: Vector[Real]): Vector[Scalar] = Vectrx(VectorR(v)) * s }
+  def * (that: Units): Units =
 
-  def Vectr(reals: Real*): Vectrx = Vectrx(Vector(reals:_*).map(Scalar(_)))
+    var units1 = units
 
-  }
+    for (unit <- that.units.keys)
+      var exp = that.units(unit)
+      if units.contains(unit) then exp += units1(unit)
+      units1 += unit -> exp
+
+    Units(units1).cleanup
+
+  def / (that: Units): Units = that.inverse * this
+  def pow(exp: Real) = Units(units.map(u => (u._1, exp * u._2)))
+  def inverse = Units(units.map(u => (u._1, -u._2)))
+
+case class Scalar private[scalar_] (num: Real=1, units: Units=Units())
+  extends Ordered[Scalar]:
+
+  def this(u: Units) = this(1, u)
+  def this(t: Text) = this(new Units(t))
+  def this(s: Scalar) = this(s.num, s.units)
+
+  //def isNaN = num.isNaN // why doesn't this compile?
+  //def isInfinity = num.isInfinity // ditto
+
+  override def equals(that: Any): Bool = that match
+    case that: Scalar => num == that.num && (num == 0 || units == that.units)
+    case that: Real  => this == Scalar(that)
+    case that: Float => this == Scalar(that)
+    case that: Int   => this == Scalar(that)
+    case that: Long  => this == Scalar(that.toDouble)
+    case _ => throw new RuntimeException(s"$this cannot = $that")
+
+  //lazy val canEqual_Scalar_Int: CanEqual[Scalar, Int]
+  //lazy val canEqual_Scalar_Int: CanEqual[Scalar, Real]
+
+  //def canEqual(that: Any): Bool =
+  //  that.isInstanceOf[Scalar] || that.isInstanceOf[Number]
+
+  override def hashCode: Int = 41 * (41 + num.hashCode) + units.hashCode
+
+  def noUnits: Bool = units.isEmpty
+
+  private def format1(fmt: Text=""): Text =
+    val out = if (fmt != "") fmt.format(num) else
+      if num % 1 == 0 then Text(num.toInt) else Text(num)
+    if num == 0 || noUnits then out else
+    out + " " + units
+
+  def format(fmt: Text=""): Text =
+
+    load_output_units
+
+    val name0 = Text(units)
+    if not(output_prefs.contains(name0)) then return format1(fmt)
+
+    val name1 = output_prefs(name0) // preferred output unit name
+    var that = convertTo(name1) * this
+    that.format1(fmt)
+
+  override def toString: Text = format()
+
+  def toDouble: Real =
+    if noUnits then return num
+    if num == 0 then return 0
+    val message = "Cannot convert " + this + " to Real"
+    throw new RuntimeException(message)
+
+  def toInt = toDouble.toInt
+  def toLong = toDouble.toLong
+
+  def checkUnits(that: Scalar): Bool = // check for inconsistent units
+    if num == 0 || that.num == 0 then true else
+    units.checkUnits(that.units)
+
+  def pow(exp: Real): Scalar = Scalar(math.pow(num, exp), units.pow(exp))
+
+  def unary_- = Scalar(-num, units)
+  def unary_+ = Scalar(+num, units)
+
+  def + (that: Scalar): Scalar =
+    if num == 0 then return that
+    if that.num == 0 then return this
+    checkUnits(that)
+    Scalar(num + that.num, units)
+
+  def - (that: Scalar): Scalar =
+    if num == 0 then return -that
+    if that.num == 0 then return this
+    checkUnits(that)
+    Scalar(num - that.num, units)
+
+  def % (that: Scalar): Scalar =
+    checkUnits(that)
+    Scalar(num % that.num, units)
+
+  def * (that: Scalar): Scalar = Scalar(num * that.num, units * that.units)
+  def / (that: Scalar): Scalar = Scalar(num / that.num, units / that.units)
+
+  def * (x: Real): Scalar = Scalar(num * x, units)
+  def / (x: Real): Scalar = Scalar(num / x, units)
+
+  def compare(that: Scalar): Int =
+    // defines comparison operators and list ordering
+    checkUnits(that)
+    if num > that.num then 1 else
+    if num < that.num then -1 else 0
+
+  //def * (vec: Vector[Real]): Vector[Scalar] = VectorR(vec) * this
+  //def * (vec: Vector[Scalar]): Vector[Scalar] = vec * this
+
+val zero = Scalar(0)
+val one  = Scalar(1)
+
+implicit def RealToScalar(r: Real): Scalar = Scalar(r)
+implicit def IntToScalar(i: Int): Scalar = Scalar(i)
+//implicit def ScalarToReal(s: Scalar): Real = Real(s) // causes problems!
+
+implicit def ListI(list: List[Int]): List[Scalar] = list map (Scalar(_))
+implicit def ListR(list: List[Real]): List[Scalar] = list map (Scalar(_))
+implicit def VectorI(vec: Vector[Int]): Vector[Scalar] = vec map (Scalar(_))
+implicit def VectorR(vec: Vector[Real]): Vector[Scalar] = vec map (Scalar(_))
+
+implicit def ListI2(list: List[List[Int]]): List[List[Scalar]] =
+    list map (ListI(_))
+implicit def ListR2(list: List[List[Real]]): List[List[Scalar]] =
+    list map (ListR(_))
+implicit def VectorI2(vec: Vector[Vector[Int]]): Vector[Vector[Scalar]] =
+    vec map (VectorI(_))
+implicit def VectorR2(vec: Vector[Vector[Real]]): Vector[Vector[Scalar]] =
+    vec map (VectorR(_))
+
+def abs(s: Scalar): Scalar = Scalar(math.abs(s.num), s.units)
+def pow(s: Scalar, e: Real): Scalar = s.pow(e)
+def sqrt(s: Scalar): Scalar = s.pow(0.5)
+def signum(s: Scalar): Real = math.signum(s.num)
+
+def copy(d: Real): Real = d
+
+val err1 = "WARNING: trig arg should be scalar (use rad or deg)\n"
+
+// The following 3 lines may cause a warning, but they force
+// the user to specify radians or degrees to avoid errors.
+
+def sin(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad or deg
+def cos(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad or deg
+def tan(x: Real) = { throw new RuntimeException(err1); 0.0 } // force rad or deg
+
+def sin(x: Scalar): Real = math.sin(Real(x))
+def cos(x: Scalar): Real = math.cos(Real(x))
+def tan(x: Scalar): Real = math.tan(Real(x))
+
+def asin(x: Scalar): Scalar = math.asin(Real(x))
+def acos(x: Scalar): Scalar = math.acos(Real(x))
+def atan(x: Scalar): Scalar = math.atan(Real(x))
+
+def atan2(y: Scalar, x: Scalar): Scalar =
+  x.checkUnits(y)
+  val ax = abs(x)
+  val ay = abs(y)
+  if ax > ay then math.atan2(Real(y/ax), signum(x))
+  else math.atan2(signum(y), Real(x/ay))
+
+def min(x: Scalar*): Scalar = x.min
+def max(x: Scalar*): Scalar = x.max
+
+def min(x: Real*): Real = x.min
+def max(x: Real*): Real = x.max
+
+def min(x: Int*): Int = x.min
+def max(x: Int*): Int = x.max
+
+private var base_units = List[Scalar]()
+private var derived_units = List[Scalar]()
+private var output_unit_names = List[Text]()
+
+private var convertTo = Map[Text, Scalar]() // output conversion factors
+private var output_prefs = Map[Text, Text]() // output unit preferences
+private var utypes = Map[Text, Text]() // map of names to physical quantity
+private var fullnames = Map[Text, Text]() // map of short unit names to full names
+private var nameToUnitMap = Map[Text, Scalar]() // map of names to units
+
+def nameToUnit(name: Text) = nameToUnitMap(name)
+
+private def expand(scalar: Scalar): Scalar = // expand to base units
+  val name = Text(scalar.units)
+  if convertTo.contains(name) then return scalar / convertTo(name)
+  scalar
+
+private var output_units_loaded = false
+
+def output_units(names: Text*) =
+  for (name <- names) output_unit_names ::= name
+  output_units_loaded = false
+
+def load_output_units: Unit =
+
+  if output_units_loaded then return
+  output_units_loaded = true
+
+  for (name <- output_unit_names.reverse)
+    val namex = Text(expand(nameToUnitMap(name)).units)
+    output_prefs += namex -> name
+
+def format(scalar: Scalar, uname: Text, fmt: Text=""): Text =
+
+  if uname == "" then // no unit name given
+    if fmt == "" then return Text(scalar) // no format given
+    else return fmt.format(ScalarToReal(scalar))
+
+  val out = scalar * convertTo(uname)
+  out.format(fmt)
+
+def form(scalar: Scalar, unit: Scalar, fmt: Text=""): Text =
+  val num = Real(scalar/unit)
+  if fmt != "" then fmt.format(num) else
+  if num % 1 == 0 then Text(num.toInt) else
+  Text(num)
+
+private def utype(scalar: Scalar, utype: Text) = // store unit type
+  utypes += Text(scalar.units) -> utype
+
+def utype(scalar: Scalar): Text = // return unit type
+
+  val txt = Text(scalar.units)
+  var out = if (scalar.noUnits) "<null>" else txt
+
+  if fullnames.contains(txt) then out += " = " + fullnames(txt)
+
+  val s2 = expand(scalar)
+  val u2 = Text(s2.units)
+  if u2 != txt then out += " = " + s2
+
+  if utypes.contains(txt) then out += ": " + utypes(txt)
+  //else out += ": [unspecified unit type]"
+
+  out
+
+def base_unit(name: Text="", fullname: Text="", utype: Text=""): Scalar =
+  // new base unit
+
+  val scalar = if (name == "") Scalar() else new Scalar(name)
+
+  fullnames += name -> fullname
+  utypes += name -> utype
+  nameToUnitMap += name -> scalar
+  base_units ::= scalar
+  convertTo += name -> 1
+
+  scalar
+
+def unit(name: Text, equiv: Scalar, fullname: Text="", utype: Text=""): Scalar =
+  // new derived unit
+
+  val scalar = if (name == "") Scalar() else new Scalar(name)
+
+  if fullname != "" then fullnames += name -> fullname
+  if utype != "" then utypes += name -> utype
+  nameToUnitMap += name -> equiv
+  derived_units ::= scalar
+  convertTo += name -> scalar / equiv
+
+  equiv
+
+def unitList: Text = // for printing a complete list of units
+  var txt = "\nbase units:\n"
+  for (unit <- base_units.reverse) txt += "   " + utype(unit) + "\n"
+  txt += "\nderived units:\n"
+  for (unit <- derived_units.reverse) txt += "   " + utype(unit) + "\n"
+  txt
+
+def ScalarToReal(x: Any) = x match
+  case x: Scalar => Real(x)
+  case _ => x
+
+case class Text1(s: Text):
+  def form(args: Any*) = s.format(args.map(ScalarToReal(_)): _*)
+
+implicit def TextToText1(s: Text): Text1 = Text1(s)
+
+implicit def ScalarToScalarI(x: Scalar): ScalarI = ScalarI(x)
+implicit def ScalarToScalarR(x: Scalar): ScalarR = ScalarR(x)
+implicit def RealToScalarI(x: Real): ScalarI = ScalarI(x)
+implicit def RealToScalarR(x: Real): ScalarR = ScalarR(x)
+implicit def IntToScalarI(x: Int): ScalarI = ScalarI(x)
+implicit def IntToScalarR(x: Int): ScalarR = ScalarR(x)
+
+case class ScalarI(s: Scalar): // for "scalar * vector" multiplication
+  def * (v: Vector[Int]): Vector[Scalar] = Vector1(VectorI(v)) * s
+case class ScalarR(s: Scalar): // for "scalar * vector" multiplication
+  def * (v: Vector[Real]): Vector[Scalar] = Vector1(VectorR(v)) * s

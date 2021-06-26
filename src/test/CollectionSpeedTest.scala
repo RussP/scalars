@@ -3,7 +3,6 @@ package scalar.test
 import types_._
 import tools_._
 import scalar_._
-import ATMunits_._
 
 import System.currentTimeMillis
 import scala.collection.immutable.{Vector => SVector}

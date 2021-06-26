@@ -23,7 +23,7 @@ higher) will not. At output level 2, print2 and println2 will send
 output to the file, and so forth.
 ************************************************************************** */
 
-package tools
+package tools_
 
 import java.io._
 
