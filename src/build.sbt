@@ -1,21 +1,21 @@
 name := "physical-scalar"
-version := "4.5"
-scalaVersion := "2.13.1"
+version := "5.0"
+scalaVersion := "3.0.0"
 organization := "gov.nasa.arc"
 
 crossPaths := false
 
-scalaSource in Compile := baseDirectory.value / "src" / "main"
-scalaSource in Test    := baseDirectory.value / "src" / "test"
+Compile / scalaSource := baseDirectory.value/"src"/"main"
+Test / scalaSource    := baseDirectory.value/"src"/"test"
 
 libraryDependencies +=
-  "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
 
 scalacOptions += "-deprecation"
-scalacOptions += "-Xcheckinit"
+//scalacOptions += "-Xcheckinit"
 scalacOptions += "-feature"
-scalacOptions += "-Ywarn-value-discard"
-scalacOptions += "-Ywarn-dead-code"
+//scalacOptions += "-Ywarn-value-discard"
+//scalacOptions += "-Ywarn-dead-code"
 //scalacOptions += "-Xdisable-assertions"
 //scalacOptions += "-Xfatal-warnings"
 //scalacOptions += "-Xlint"
