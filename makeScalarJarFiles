@@ -9,6 +9,8 @@ cwd=$(pwd)
 
 if [ ${cwd##*/} != "scalar" ]; then echo "wrong dir"; exit; fi
 
+sbt clean
+
 cd src/main
 ./scalar-on
 cd $cwd
