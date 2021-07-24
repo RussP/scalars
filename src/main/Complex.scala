@@ -7,7 +7,7 @@ import scala.language.implicitConversions
 
 case class Complex(real: Scalar, imag: Scalar=0):
 
-  override def toString: Text = if (imag == 0) "%g+0i".form(real) else
+  override def toString: Text = if imag == zero then "%g+0i".form(real) else
     s"%g${if (imag<0) "-" else "+"}%gi".form(real, abs(imag))
 
   lazy val mag = hypot(real, imag) // magnitude
@@ -43,15 +43,15 @@ case class Complex(real: Scalar, imag: Scalar=0):
 
   override def equals(that: Any): Bool = that match
     case c: Complex => real == c.real && imag == c.imag
-    case s: Scalar => real == s && imag == 0
-    case r: Real => real == r && imag == 0 // ignore compiler warning
-    case i: Int => real == i && imag == 0
+    case s: Scalar => real == s && imag == zero
+    case r: Real => Real(real) == r && imag == zero // ignore compiler warning
+    case i: Int => Int(real) == i && imag == zero
     case _ => false
 
   def ==: (a: Any) = equals(a) // allows reverse order of args for == test
 
   def toScalar: Scalar =
-    if imag == 0 then return real
+    if imag == zero then return real
     throw new RuntimeException(s"Cannot convert $this to Scalar")
 
   def toReal = Real(toScalar)
@@ -84,7 +84,7 @@ object Complex:
 
   def quadraticRoots(a: Scalar, b: Scalar, c: Scalar): Vector[Complex] =
     // roots of a quadratic polynomial ax^2 + bx + c = 0
-    if a == 0 then return Vector(-c/b)
+    if a == zero then return Vector(-c/b)
     val d = Complex.sqrt(b*b - 4*a*c)
     val x1 = (-b + d) / a / 2
     val x2 = (-b - d) / a / 2
@@ -94,7 +94,7 @@ object Complex:
     // roots of a cubic polynomial ax^3 + bx^2 + cx + d = 0 based on
     // https://en.wikipedia.org/wiki/Cubic_equation#General_cubic_formula
 
-    if a == 0 then return quadraticRoots(b, c, d)
+    if a == zero then return quadraticRoots(b, c, d)
 
     val d0 = b*b - 3*a*c
     val d1 = 2*b*b*b - 9*a*b*c + 27*a*a*d
