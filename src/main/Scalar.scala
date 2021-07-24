@@ -1,1 +1,1 @@
-Scalar.scala.off
+Scalar.scala.on

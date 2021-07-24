@@ -6,10 +6,17 @@ For documentation and user guide, see http://RussP.us/scalar-scala.htm
 
 package scalar_ // fast version without unit compatibility checks
 
+type Scalar = Real
+
 import types_._
 import language.implicitConversions
+import language.strictEquality
 
-type Scalar = Real
+given CanEqual[Scalar, Scalar] = CanEqual.derived
+given CanEqual[Scalar, Real]   = CanEqual.derived
+given CanEqual[Scalar, Float]  = CanEqual.derived
+given CanEqual[Scalar, Int]    = CanEqual.derived
+given CanEqual[Scalar, Long]   = CanEqual.derived
 
 val zero = 0.0
 val one = 1.0

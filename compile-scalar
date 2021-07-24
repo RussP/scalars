@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o nounset # exit when reading any unset variable
+set -o errexit # exit when any command returns an error
+
+trap 'exit' INT TERM # exit when interrupted or terminated
+
+cd ~/scalar
+
+sbt clean
+sbt test:clean
+
+sbt package
+sbt test:package

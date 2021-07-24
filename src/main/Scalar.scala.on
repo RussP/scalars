@@ -9,10 +9,7 @@ package scalar_ // slow version with unit compatibility checks
 import types_._
 
 import language.implicitConversions
-import scala.language.strictEquality
-
-given CanEqual[Map[Text, Real], Map[Text, Real]] = CanEqual.derived
-given CanEqual[Units, Units] = CanEqual.derived
+import language.strictEquality
 
 given CanEqual[Scalar, Scalar] = CanEqual.derived
 given CanEqual[Scalar, Real]   = CanEqual.derived
@@ -20,7 +17,8 @@ given CanEqual[Scalar, Float]  = CanEqual.derived
 given CanEqual[Scalar, Int]    = CanEqual.derived
 given CanEqual[Scalar, Long]   = CanEqual.derived
 
-val xxx = given_CanEqual_Scalar_Int
+given CanEqual[Map[Text, Real], Map[Text, Real]] = CanEqual.derived
+given CanEqual[Units, Units] = CanEqual.derived
 
 def Int (s: Scalar) = s.toInt // works only for dimensionless Scalars!
 def Long(s: Scalar) = s.toLong // ditto
