@@ -50,7 +50,7 @@ implicit class Vector1(self: Vector[Scalar]):
   def sumx: Scalar = foldLeft(zero)(_ + _) // sum already in use for Vector
   def mean: Scalar = sumx / length
   def sumsqr: Scalar = foldLeft(zero)(_ + mathx_.sqr(_))
-  def isZero: Boolean = forall(_ == 0)
+  def isZero: Boolean = forall(_ == zero)
 
   def mag: Scalar = sqrt(sumsqr) // magnitude
   def dir: Scalar = if isZero then zero else atan2(x, y) // direction (course)
