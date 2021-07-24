@@ -6,9 +6,12 @@ import mathx_._
 import scalar_._
 import ATMunits_._
 
-case object ScalarTest {
+import scalar_.given_CanEqual_Scalar_Int
+import scalar_.given_CanEqual_Scalar_Real
 
-  def main(args: Array[Text]) = {
+case object ScalarTest:
+
+  def main(args: Array[Text]) =
 
     val tol = 1e-13 // numerical error tolerance
 
@@ -65,12 +68,12 @@ case object ScalarTest {
     assert( abs(atan2(-3 * nmi,  3 * nmi) +  45 * deg) < tol )
     assert( abs(atan2(-3 * nmi, -3 * nmi) + 135 * deg) < tol )
 
-    assert( 6.0 * nmi / nmi == 6 )
+    assert( Real(6.0 * nmi / nmi) == 6 )
     assert( 6 * nmi / nmi == 6 )
 
     assert( 0 * ft == 0 * sec)
     assert( 0 * ft == zero )
-    assert( 4 * rad == 4 )
+    assert( Real(4 * rad) == 4 )
     assert( 4 * rad != 5 )
     assert( 3 * ft/ft == 3 )
     assert( 0 * ft == 0 )
@@ -97,5 +100,4 @@ case object ScalarTest {
 
     println(unitList)
     println
-    }}  
 
