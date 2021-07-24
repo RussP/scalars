@@ -11,7 +11,6 @@ case class ScalarRange(low: Scalar=0, high: Scalar=0):
   require(valid)
 
   def dif = high - low
-  def hasOverlapWith(that: ScalarRange) = separation(that) == 0
 
   def contains(s: Scalar) = s >= low && s <= high
   def containsNot(s: Scalar) = not(contains(s))
@@ -28,6 +27,12 @@ case class ScalarRange(low: Scalar=0, high: Scalar=0):
   def separation(that: ScalarRange): Scalar =
     if that.low > high then that.low - high else
     if low > that.high then low - that.high else 0
+
+  def hasOverlapWith(that: ScalarRange): Bool =
+    (high < that.high && high > that.low) ||
+    (low < that.high && low > that.low)
+
+  def hasNoOverlapWith(that: ScalarRange) = not(hasOverlapWith(that))
 
   def intersection(that: ScalarRange): Option[ScalarRange] =
     if that.low > high then return None
