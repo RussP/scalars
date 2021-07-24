@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-# This script provides a calculator with units in the Scala REPL
+# provides a calculator with units in the Scala REPL
 
-export CLASSPATH=~/scalar/physical-scalar.jar
+cd ~/scalar
+sbt console
 
-scala -i ~/scalar/init.scala
+#export CLASSPATH=~/scalar/physical-scalar.jar
+#scala # -i ~/scalar/init.scala
