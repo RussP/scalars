@@ -2,14 +2,15 @@ name := "physical-scalar"
 version := "5.0"
 scalaVersion := "3.0.0"
 organization := "gov.nasa.arc"
-
 crossPaths := false
 
 Compile / scalaSource := baseDirectory.value/"src"/"main"
-Test / scalaSource    := baseDirectory.value/"src"/"test"
+Test    / scalaSource := baseDirectory.value/"src"/"test"
 
 libraryDependencies +=
   "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
+
+console / initialCommands := "import scalar_.*, units_.*, mathx_.*"
 
 scalacOptions += "-deprecation"
 //scalacOptions += "-Xcheckinit"
